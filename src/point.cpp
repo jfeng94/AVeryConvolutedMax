@@ -1,3 +1,5 @@
+#include <float.h>
+
 // Default constructor
 Point::Point()
 {
@@ -27,6 +29,16 @@ Point * Point::norm()
     result /= mag;
 
     return result;
+}
+
+// Calculates the Euclidean distance between 2 points
+float Point::dist(Point * p)
+{
+    float dx = p->x - this->x;
+    float dy = p->y - this->y;
+    float dz = p->z - this->z;
+
+    return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
 // OPERATOR OVERLOADS
@@ -172,4 +184,51 @@ bool Point::operator==(Point p)
     }
 
     return false;
+}
+
+Ray::Ray()
+{
+    // No direction
+    this->x = 0;
+    this->y = 0;
+    this->z = 0;
+    
+    // Default color black
+    this->R = 0;
+    this->G = 0;
+    this->B = 0;
+    this->d = FLT_MAX;
+}
+
+Ray::Ray(float X, float Y, float X)
+{
+    this->x = X;
+    this->y = Y;
+    this->z = Z;
+
+    // Default color black
+    this->R = 0;
+    this->G = 0;
+    this->B = 0;
+    this->d = FLT_MAX;
+}
+
+Ray::Ray(Point* p)
+{
+    this->x = p->x;
+    this->y = p->y;
+    this->z = p->z;
+    
+    // Default color black./
+    this->R = 0;
+    this->G = 0;
+    this->B = 0;
+    this->d = FLT_MAX;
+}
+
+void Ray::setColor(int r, int g, int b)
+{
+    this->R = r;
+    this->G = g;
+    this->B = b;
 }

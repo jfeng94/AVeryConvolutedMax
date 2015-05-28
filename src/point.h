@@ -1,9 +1,10 @@
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
+#ifndef POINT_H
+#define POINT_H
 
-#include "geometry.cpp"
+#include "point.cpp"
 
-class Point {
+class Point 
+{
     private:
         float x, y, z;
 
@@ -24,6 +25,7 @@ class Point {
 
         // Other functions
         Point * norm();
+        float * dist(Point*);
 
         // Operator overloads
         Point * operator+ (Point);
@@ -45,16 +47,23 @@ class Point {
         Point * operator-=(float);
         Point * operator/=(float);
         Point * operator*=(float);
+        
+        friend std::ostream& operator<< (std::ostream&, Vertex *);
+        friend std::ostream& operator<< (std::ostream&, Vertex);
 };
 
-class Ray {
+// 3D ray class that inherits from point.
+class Ray : public Point
+{
     private:
-        Point * dir;
-
+        int R, G, B; // Returned color value
+        float d;     // Distance to closest object
     public:
         Ray();
-        Ray(int, int, int);
+        Ray(float, float, float);
         Ray(Point*);
+
+        void setColor(int, int, int);
 };
 
 #endif
