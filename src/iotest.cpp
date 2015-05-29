@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 int main()
 {
@@ -11,8 +12,11 @@ int main()
 
     Superquadric * s = new Superquadric();
 
+    std::ofstream out;
+    out.open("MatlabTools/iotest_results.txt", std::fstream::out);
+
     float min_x(-1), max_x(1), min_y(-1), max_y(1), min_z(-1), max_z(1);
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 10000; i++)
     {
         float x, y, z;
         x = min_x + static_cast <float> (rand()) /
@@ -24,7 +28,8 @@ int main()
 
         Point * p = new Point(x, y, z);
 
-        std::cout << p << s->isq(p) << "\n";
+        if (s->isq(p) <= 0)
+            out << p;
     }
 
     return 0;
