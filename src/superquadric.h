@@ -1,19 +1,22 @@
 #ifndef  SUPERQUADRIC_H
 #define  SUPERQUADRIC_H
 
-#include "superquadric.cpp"
-#include "geometry.h"
-
+#include "point.h"
+#include "matrix.h"
 
 class Superquadric {
     private:
-        float x, y, z; // Position members
-                       // Orientation
-                       // Scaling
-        float e, n;    // Eccentricity values
+        traMat * t;   // Position members
+        rotMat * r;   // Orientation
+        scaMat * s;   // Scaling
+        float e, n; // Eccentricity values
     
     public:
-       bool contains(Point *); // Checks inside-outsideness of point 
+        Superquadric();
+        Superquadric(float, float);
+        Superquadric(Point*, Point*, Point*, float, float);
+        float isq(Point *);
+        bool contains(Point *); // Checks inside-outsideness of point 
 };
 
 

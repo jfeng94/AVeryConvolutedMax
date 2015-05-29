@@ -1,29 +1,34 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "matrix.cpp"
+#include <iostream>
+
 #include "point.h"
 
 // Base matrix class
 class Matrix
 {
-    private:
-        float x_comp, y_comp, z_comp;
+    protected:
+        Point * xyz;
 
     public:
-        virtual Point *   apply(Point *);
-        virtual Point * unapply(Point *);
+        virtual Point *   apply(Point *) = 0;
+        virtual Point * unapply(Point *) = 0;
 };
 
 // Rotation matrix
 class rotMat : public Matrix
 {
-    private:
+    protected:
         float theta;           // Rotation component
 
     public:
         rotMat();              // Default constructor
+        rotMat(float, float, float, float);
         rotMat(Point*, float); // Normal  constructor
+
+        Point *   apply(Point *);
+        Point * unapply(Point *);
 
 };
 
@@ -32,7 +37,11 @@ class scaMat : public Matrix
 {
     public:
         scaMat();
+        scaMat(float, float, float);
         scaMat(Point*);
+
+        Point *   apply(Point *);
+        Point * unapply(Point *);
 };
 
 // Translation matrix
@@ -40,6 +49,10 @@ class traMat : public Matrix
 {
     public:
         traMat();
-        traMat(Point*);
+        traMat(float, float, float);
+        traMat(Point *);
+
+        Point *   apply(Point *);
+        Point * unapply(Point *);
 };
 #endif

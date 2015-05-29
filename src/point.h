@@ -1,11 +1,11 @@
 #ifndef POINT_H
 #define POINT_H
 
-#include "point.cpp"
+#include <iostream>
 
 class Point 
 {
-    private:
+    protected:
         float x, y, z;
 
     public:
@@ -25,7 +25,7 @@ class Point
 
         // Other functions
         Point * norm();
-        float * dist(Point*);
+        float   dist(Point*);
 
         // Operator overloads
         Point * operator+ (Point);
@@ -48,14 +48,13 @@ class Point
         Point * operator/=(float);
         Point * operator*=(float);
         
-        friend std::ostream& operator<< (std::ostream&, Vertex *);
-        friend std::ostream& operator<< (std::ostream&, Vertex);
+        friend std::ostream& operator<< (std::ostream&, Point *);
 };
 
 // 3D ray class that inherits from point.
 class Ray : public Point
 {
-    private:
+    protected:
         int R, G, B; // Returned color value
         float d;     // Distance to closest object
     public:

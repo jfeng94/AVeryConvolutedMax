@@ -1,4 +1,6 @@
 #include <float.h>
+#include <cmath>
+#include "point.h"
 
 // Default constructor
 Point::Point()
@@ -20,13 +22,13 @@ Point::Point(float x, float y, float z)
 Point * Point::norm()
 {
     Point * result = new Point();
-    *result = *this
+    *result = *this;
 
-    float mag =sqrt(this->x * this->x +
-                    this->y * this->y +
-                    this->z * this->z);
+    float mag = sqrt(this->x * this->x +
+                     this->y * this->y +
+                     this->z * this->z);
 
-    result /= mag;
+    *result /= mag;
 
     return result;
 }
@@ -114,7 +116,7 @@ Point * Point::operator+(float f)
 {
     Point * result = new Point(this->x + f,
                                this->y + f,
-                               this->z + f)
+                               this->z + f);
     return result;
 }
 
@@ -122,7 +124,7 @@ Point * Point::operator-(float f)
 {
     Point * result = new Point(this->x - f,
                                this->y - f,
-                               this->z - f)
+                               this->z - f);
     return result;
 }
 
@@ -130,7 +132,7 @@ Point * Point::operator*(float f)
 {
     Point * result = new Point(this->x * f,
                                this->y * f,
-                               this->z * f)
+                               this->z * f);
     return result;
 }
 
@@ -138,7 +140,7 @@ Point * Point::operator/(float f)
 {
     Point * result = new Point(this->x / f,
                                this->y / f,
-                               this->z / f)
+                               this->z / f);
     return result;
 }
 
@@ -147,6 +149,8 @@ Point * Point::operator+=(float f)
     this->x += f;
     this->y += f;
     this->z += f;
+
+    return this;
 }
 
 Point * Point::operator-=(float f)
@@ -154,6 +158,7 @@ Point * Point::operator-=(float f)
     this->x -= f;
     this->y -= f;
     this->z -= f;
+    return this;
 }
 
 Point * Point::operator*=(float f)
@@ -161,6 +166,7 @@ Point * Point::operator*=(float f)
     this->x *= f;
     this->y *= f;
     this->z *= f;
+    return this;
 }
 
 Point * Point::operator/=(float f)
@@ -168,11 +174,12 @@ Point * Point::operator/=(float f)
     this->x /= f;
     this->y /= f;
     this->z /= f;
+    return this;
 }
 
 Point * Point::operator=(Point p)
 {
-    Point result = new Point(p.x, p.y, p.z);
+    Point * result = new Point(p.x, p.y, p.z);
     return result;
 }
 
@@ -186,6 +193,17 @@ bool Point::operator==(Point p)
     return false;
 }
 
+
+// Stream output operator
+std::ostream& operator<<(std::ostream &out, Point *p)
+{
+    out << p->x << "\t" << p->y << "\t" << p->z << "\n";
+    return out;
+}
+
+/******************************************************************************/
+/*                           Methods for Ray Class                            */
+/******************************************************************************/
 Ray::Ray()
 {
     // No direction
@@ -200,7 +218,7 @@ Ray::Ray()
     this->d = FLT_MAX;
 }
 
-Ray::Ray(float X, float Y, float X)
+Ray::Ray(float X, float Y, float Z)
 {
     this->x = X;
     this->y = Y;
@@ -215,9 +233,9 @@ Ray::Ray(float X, float Y, float X)
 
 Ray::Ray(Point* p)
 {
-    this->x = p->x;
-    this->y = p->y;
-    this->z = p->z;
+    this->x = p->X();
+    this->y = p->Y();
+    this->z = p->Z();
     
     // Default color black./
     this->R = 0;
