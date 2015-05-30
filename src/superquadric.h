@@ -6,9 +6,9 @@
 
 class Superquadric {
     private:
-        traMat * t;   // Position members
-        rotMat * r;   // Orientation
-        scaMat * s;   // Scaling
+        traMat t;   // Position members
+        rotMat r;   // Orientation
+        scaMat s;   // Scaling
         float e, n; // Eccentricity values
     
     public:

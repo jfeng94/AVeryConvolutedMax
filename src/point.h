@@ -22,6 +22,18 @@ class Point
         void setX(float X) {this->x = X;}      
         void setY(float Y) {this->y = Y;}
         void setZ(float Z) {this->z = Z;}
+        void set(float X, float Y, float Z) 
+        {
+            this->x = X;
+            this->y = Y;
+            this->z = Z;
+        }
+        void set(Point*p)
+        {
+            this->x = p->x;
+            this->y = p->y;
+            this->z = p->z;
+        }
 
         // Other functions
         Point * norm();
@@ -55,14 +67,16 @@ class Point
 class Ray : public Point
 {
     protected:
+        float posx, posy, posz;
         int R, G, B; // Returned color value
         float d;     // Distance to closest object
     public:
         Ray();
-        Ray(float, float, float);
-        Ray(Point*);
+        Ray(float, float, float, float, float, float);
+        Ray(Point*, Point *);
 
         void setColor(int, int, int);
+        Point * propagate(float);
 };
 
 #endif
