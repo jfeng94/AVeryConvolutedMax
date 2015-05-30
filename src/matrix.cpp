@@ -34,6 +34,8 @@ rotMat::rotMat(Point *p, float t)
         exit(1);
     }
 
+    //std::cout << "P:     " << p;
+    //std::cout << "PNorm: " <<p->norm();
     this->xyz = *(p->norm());
     this->theta = t;
 }
@@ -73,6 +75,9 @@ Point * rotMat::unapply(Point * p)
     float r1  = this->xyz.X();
     float r2  = this->xyz.Y();
     float r3  = this->xyz.Z();
+
+    //std::cout << r1 << " " << r2 << " " << r3 << "\n";
+
     float Cos = cos(-1.0 * this->theta);
     float Sin = sin(-1.0 * this->theta);
 

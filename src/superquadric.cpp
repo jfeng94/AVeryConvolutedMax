@@ -26,7 +26,7 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
     {
     this->t.set(tra);
     this->s.set(sca);
-    this->r.set(rot);
+    this->r.set(rot->norm());
     this->r.setTheta(theta);
     this->e = E;
     this->n = N;
@@ -34,6 +34,9 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
 
 Point * Superquadric::applyTransforms(Point * p)
 {
+    //std::cout << "Translate: " << this->t.unapply(p);
+    //std::cout << "Rotate   : " << this->r.unapply(this->t.unapply(p));
+    //std::cout << "Scale    : " << this->s.unapply(this->r.unapply(this->t.unapply(p)));
     Point * res = this->s.unapply(this->r.unapply(this->t.unapply(p)));
 
     return res;
@@ -43,6 +46,8 @@ Point * Superquadric::applyTransforms(Point * p)
 float Superquadric::isq(Point *p)
 {
     Point * transP = this->applyTransforms(p);
+    //std::cout << "ISQ --\n" << p;
+    //std::cout << transP;
     return pow(pow(transP->X() * transP->X(), 1 / this->e) +
                pow(transP->Y() * transP->Y(), 1 / this->e),
                this->e / this->n) +

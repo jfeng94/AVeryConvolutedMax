@@ -28,7 +28,6 @@ Point * Point::norm()
                      this->y * this->y +
                      this->z * this->z);
     *result /= mag;
-    std::cout << result;
     return result;
 }
 
