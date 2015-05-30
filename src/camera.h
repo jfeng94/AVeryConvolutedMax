@@ -1,13 +1,26 @@
+#include "point.cpp"
+#include "superquadric.cpp"
+
+#include <vector>
+
 class Camera
 {
     private:
-        Ray * rayScreen;
-        Point * LookFrom, * LookAt;
-        Point * e1, *e2, *e3;
+        std::vector<std::vector<Ray *>> rayScreen;
+        Point LookFrom, LookAt, Up;
+        Point e1, e2, e3;
         float Fd;
         int Fx, Fy, Nx, Ny;
 
-    public:
         Camera();
-        Camera(w, h, Nx, Ny);
+
+        void init();
+    public:
+        // Default constructor
+        Camera();
+
+        // Camera constructor
+        //     LookFrom LookAt   Fd     Fx     Nx     Ny
+        Camera(Point *, Point *, Point *, float, float, float, float);
+        RayTrace(std::vector<Superquadric *>);
 };

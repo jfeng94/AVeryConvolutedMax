@@ -22,6 +22,18 @@ class Point
         void setX(float X) {this->x = X;}      
         void setY(float Y) {this->y = Y;}
         void setZ(float Z) {this->z = Z;}
+        void set(float X, float Y, float Z) 
+        {
+            this->x = X;
+            this->y = Y;
+            this->z = Z;
+        }
+        void set(Point*p)
+        {
+            this->x = p->x;
+            this->y = p->y;
+            this->z = p->z;
+        }
 
         // Other functions
         Point * norm();

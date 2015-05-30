@@ -1,11 +1,16 @@
 #include "matrix.h"
 
+void Matrix::set(Point *p)
+{
+    this->xyz.set(p);
+}
+
 /*****************************************************************************/
 /*                        Rotation Matrix Methods                            */
 /*****************************************************************************/
 rotMat::rotMat()
 {
-    this->xyz    = new Point(1, 0, 0);
+    this->xyz.setX(1);
     this->theta  = 0;
 }
 
@@ -16,8 +21,8 @@ rotMat::rotMat(float x, float y, float z, float t)
         std::cerr << "Error! Rotation matrix cannot have no direction\n";
         exit(1);
     }
-    this->xyz   = new Point(x, y, z);
-    this->xyz   = this->xyz->norm();
+    this->xyz.set(x, y, z);;
+    this->xyz   = * (this->xyz.norm());
     this->theta = t;
 }
 
@@ -29,15 +34,15 @@ rotMat::rotMat(Point *p, float t)
         exit(1);
     }
 
-    this->xyz = p->norm();
+    this->xyz = *(p->norm());
     this->theta = t;
 }
 
 Point * rotMat::apply(Point * p)
 {
-    float r1  = this->xyz->X();
-    float r2  = this->xyz->Y();
-    float r3  = this->xyz->Z();
+    float r1  = this->xyz.X();
+    float r2  = this->xyz.Y();
+    float r3  = this->xyz.Z();
     float Cos = cos(this->theta);
     float Sin = sin(this->theta);
 
@@ -65,9 +70,9 @@ Point * rotMat::apply(Point * p)
 
 Point * rotMat::unapply(Point * p)
 {
-    float r1  = this->xyz->X();
-    float r2  = this->xyz->Y();
-    float r3  = this->xyz->Z();
+    float r1  = this->xyz.X();
+    float r2  = this->xyz.Y();
+    float r3  = this->xyz.Z();
     float Cos = cos(-1.0 * this->theta);
     float Sin = sin(-1.0 * this->theta);
 
@@ -98,31 +103,31 @@ Point * rotMat::unapply(Point * p)
 /*****************************************************************************/
 scaMat::scaMat()
 {
-    this->xyz = new Point(1, 1, 1);
+    this->xyz.set(1, 1, 1);
 }
 
 scaMat::scaMat(float x, float y, float z)
 {
-    this->xyz = new Point(x, y, z);
+    this->xyz.set(x, y, z);
 }
 
 scaMat::scaMat(Point * p)
 {
-    this->xyz = p;
+    this->xyz = *p;
 }
 Point * scaMat::apply(Point * p)
 {
-    float new_x = p->X() * this->xyz->X();
-    float new_y = p->Y() * this->xyz->Y();
-    float new_z = p->Z() * this->xyz->Z();
+    float new_x = p->X() * this->xyz.X();
+    float new_y = p->Y() * this->xyz.Y();
+    float new_z = p->Z() * this->xyz.Z();
     return new Point(new_x, new_y, new_z);;
 }
 
 Point * scaMat::unapply(Point * p)
 {
-    float new_x = p->X() / this->xyz->X();
-    float new_y = p->Y() / this->xyz->Y();
-    float new_z = p->Z() / this->xyz->Z();
+    float new_x = p->X() / this->xyz.X();
+    float new_y = p->Y() / this->xyz.Y();
+    float new_z = p->Z() / this->xyz.Z();
     return new Point(new_x, new_y, new_z);;
 }
 
@@ -131,30 +136,30 @@ Point * scaMat::unapply(Point * p)
 /*****************************************************************************/
 traMat::traMat()
 {
-    this->xyz = new Point(0, 0, 0);
+    this->xyz.set(0, 0, 0);
 }
 
 traMat::traMat(float x, float y, float z)
 {
-    this->xyz = new Point(x, y, z);
+    this->xyz.set(x, y, z);
 }
 
 traMat::traMat(Point * p)
 {
-    this->xyz = p;
+    this->xyz = *p;
 }
 Point * traMat::apply(Point * p)
 {
-    float new_x = p->X() + this->xyz->X();
-    float new_y = p->Y() + this->xyz->Y();
-    float new_z = p->Z() + this->xyz->Z();
+    float new_x = p->X() + this->xyz.X();
+    float new_y = p->Y() + this->xyz.Y();
+    float new_z = p->Z() + this->xyz.Z();
     return new Point(new_x, new_y, new_z);;
 }
 
 Point * traMat::unapply(Point * p)
 {
-    float new_x = p->X() - this->xyz->X();
-    float new_y = p->Y() - this->xyz->Y();
-    float new_z = p->Z() - this->xyz->Z();
+    float new_x = p->X() - this->xyz.X();
+    float new_y = p->Y() - this->xyz.Y();
+    float new_z = p->Z() - this->xyz.Z();
     return new Point(new_x, new_y, new_z);;
 }

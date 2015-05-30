@@ -59,8 +59,8 @@ int main()
         //else if (std::abs(s2->isq(p)) <= EPSILON)
         if (std::abs(s2->isq(p)) <= EPSILON)
             out2 << p;
-        else if (std::abs(s3->isq(p)) <= EPSILON)
-            out3 << p;
+        //else if (std::abs(s3->isq(p)) <= EPSILON)
+        //    out3 << p;
         else
             i--;
     }
