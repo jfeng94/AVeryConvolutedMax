@@ -27,19 +27,27 @@ Superquadric::Superquadric(float E, float N)
 
 // Fully customized superquadric constructor.
 Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
-                           float E, float N)
+                           float theta, float E, float N)
 {
     this->t = new traMat(tra);
     this->s = new scaMat(sca);
-    this->r = new rotMat(rot, 0);
+    this->r = new rotMat(rot, theta);
     this->e = E;
     this->n = N;
+}
+
+Point * Superquadric::applyTransforms(Point * p)
+{
+    Point * res = this->s->unapply(this->r->unapply(this->t->unapply(p)));
+
+    return res;
 }
 
 // Check if a given point is inside or outside of the 
 float Superquadric::isq(Point *p)
 {
-    return pow(pow(p->X(), 2 / this->e) + pow(p->Y(), 2 / this->e),
+    Point * transP = this->applyTransforms(p);
+    return pow(pow(transP->X(), 2 / this->e) + pow(transP->Y(), 2 / this->e),
                this->e / this->n) +
-           pow(p->Z(), 2 / this->n) - 1;
+           pow(transP->Z(), 2 / this->n) - 1;
 }

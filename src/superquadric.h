@@ -14,7 +14,9 @@ class Superquadric {
     public:
         Superquadric();
         Superquadric(float, float);
-        Superquadric(Point*, Point*, Point*, float, float);
+        Superquadric(Point*, Point*, Point*, float, float, float);
+
+        Point * applyTransforms(Point *);
         float isq(Point *);
         bool contains(Point *); // Checks inside-outsideness of point 
 };
