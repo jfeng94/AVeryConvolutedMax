@@ -20,8 +20,8 @@ int main()
     tra              = new Point(0, 0, 0);
     sca              = new Point(0.5, 0.5, 0.5);
     theta             = 0;
-    e                 = 1;
-    n                 = 2;
+    e                 = 3;
+    n                 = 3;
     Superquadric * s2 = new Superquadric(tra, sca, rot, theta, e, n);
 
     rot              = new Point(0, 0, 0);

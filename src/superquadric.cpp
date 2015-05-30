@@ -47,7 +47,8 @@ Point * Superquadric::applyTransforms(Point * p)
 float Superquadric::isq(Point *p)
 {
     Point * transP = this->applyTransforms(p);
-    return pow(pow(transP->X(), 2 / this->e) + pow(transP->Y(), 2 / this->e),
+    return pow(pow(transP->X() * transP->X(), 1 / this->e) +
+               pow(transP->Y() * transP->Y(), 1 / this->e),
                this->e / this->n) +
-           pow(transP->Z(), 2 / this->n) - 1;
+           pow(transP->Z() * transP->Z(), 1 / this->n) - 1;
 }
