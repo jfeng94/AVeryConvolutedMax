@@ -55,14 +55,16 @@ class Point
 class Ray : public Point
 {
     protected:
+        float posx, posy, posz;
         int R, G, B; // Returned color value
         float d;     // Distance to closest object
     public:
         Ray();
-        Ray(float, float, float);
-        Ray(Point*);
+        Ray(float, float, float, float, float, float);
+        Ray(Point*, Point *);
 
         void setColor(int, int, int);
+        Point * propagate(float);
 };
 
 #endif

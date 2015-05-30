@@ -207,10 +207,15 @@ std::ostream& operator<<(std::ostream &out, Point *p)
 /******************************************************************************/
 Ray::Ray()
 {
-    // No direction
-    this->x = 0;
-    this->y = 0;
-    this->z = 0;
+    // Default direction
+    this->x = 1;
+    this->y = 1;
+    this->z = 1;
+
+    // Located at the origin
+    this->posx = 0;
+    this->posy = 0;
+    this->posz = 0;
     
     // Default color black
     this->R = 0;
@@ -219,11 +224,14 @@ Ray::Ray()
     this->d = FLT_MAX;
 }
 
-Ray::Ray(float X, float Y, float Z)
+Ray::Ray(float X, float Y, float Z, float dX, float dY, float dZ)
 {
-    this->x = X;
-    this->y = Y;
-    this->z = Z;
+    this->x = dX;
+    this->y = dY;
+    this->z = dZ;
+    this->posx = X;
+    this->posy = Y;
+    this->posz = Z;
 
     // Default color black
     this->R = 0;
@@ -232,11 +240,14 @@ Ray::Ray(float X, float Y, float Z)
     this->d = FLT_MAX;
 }
 
-Ray::Ray(Point* p)
+Ray::Ray(Point* dp, Point *p)
 {
-    this->x = p->X();
-    this->y = p->Y();
-    this->z = p->Z();
+    this->x = dp->X();
+    this->y = dp->Y();
+    this->z = dp->Z();
+    this->posx = p->X();
+    this->posy = p->Y();
+    this->posz = p->Z();
     
     // Default color black./
     this->R = 0;
@@ -250,4 +261,11 @@ void Ray::setColor(int r, int g, int b)
     this->R = r;
     this->G = g;
     this->B = b;
+}
+
+Point * Ray::propagate(float time)
+{
+    return new Point(this->x * time + this->posx,
+                     this->y * time + this->posy,
+                     this->z * time + this->posz);
 }
