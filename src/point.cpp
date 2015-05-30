@@ -23,13 +23,12 @@ Point * Point::norm()
 {
     Point * result = new Point();
     *result = *this;
-
+    
     float mag = sqrt(this->x * this->x +
                      this->y * this->y +
                      this->z * this->z);
-
     *result /= mag;
-
+    std::cout << result;
     return result;
 }
 
@@ -179,8 +178,10 @@ Point * Point::operator/=(float f)
 
 Point * Point::operator=(Point p)
 {
-    Point * result = new Point(p.x, p.y, p.z);
-    return result;
+    this->x = p.x;
+    this->y = p.y;
+    this->z = p.z;
+    return this;
 }
 
 bool Point::operator==(Point p)

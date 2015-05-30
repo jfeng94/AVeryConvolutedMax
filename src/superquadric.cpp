@@ -3,6 +3,7 @@
 #include "point.h"
 
 #include <math.h>
+#include <iostream>
 
 // Create a sphere at the origin of the scene.
 Superquadric::Superquadric()

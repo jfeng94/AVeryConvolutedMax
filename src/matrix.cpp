@@ -5,19 +5,31 @@
 /*****************************************************************************/
 rotMat::rotMat()
 {
-    this->xyz    = new Point(0, 0, 0);
+    this->xyz    = new Point(1, 0, 0);
     this->theta  = 0;
 }
 
 rotMat::rotMat(float x, float y, float z, float t)
 {
+    if (x == 0 && y == 0 && z == 0)
+    {
+        std::cerr << "Error! Rotation matrix cannot have no direction\n";
+        exit(1);
+    }
     this->xyz   = new Point(x, y, z);
+    this->xyz   = this->xyz->norm();
     this->theta = t;
 }
 
 rotMat::rotMat(Point *p, float t)
 {
-    this->xyz = p;
+    if (p->X() == 0 && p->Y() == 0 && p->Z() == 0)
+    {
+        std::cerr << "Error! Rotation matrix cannot have no direction\n";
+        exit(1);
+    }
+
+    this->xyz = p->norm();
     this->theta = t;
 }
 
