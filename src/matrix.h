@@ -9,11 +9,10 @@
 class Matrix
 {
     protected:
-        Point * xyz;
+        Point xyz;
 
     public:
-        virtual Point *   apply(Point *) = 0;
-        virtual Point * unapply(Point *) = 0;
+        void set(Point *);
 };
 
 // Rotation matrix
@@ -26,6 +25,8 @@ class rotMat : public Matrix
         rotMat();              // Default constructor
         rotMat(float, float, float, float);
         rotMat(Point*, float); // Normal  constructor
+
+        void setTheta(float t) {this->theta = t;}
 
         Point *   apply(Point *);
         Point * unapply(Point *);
