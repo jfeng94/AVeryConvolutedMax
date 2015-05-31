@@ -6,4 +6,5 @@
 int main()
 {
     Camera *c = new Camera();
+    c->printImage();
 }

@@ -10,7 +10,7 @@
 class Camera
 {
     private:
-        std::vector<std::vector<Ray *> > rayScreen;
+        std::vector<Ray> rayScreen;
         Point LookFrom, LookAt, Up;
         Point e1, e2, e3;
         float Fd, Fx, Fy;
@@ -25,6 +25,8 @@ class Camera
         //     LookFrom LookAt   Fd     Fx     Nx     Ny
         Camera(Point *, Point *, Point *, float, float, float, float);
         void RayTrace(std::vector<Superquadric *>);
+
+        void printImage();
 };
 
 #endif

@@ -66,6 +66,7 @@ void Camera::init()
     out.open("MatlabTools/CameraRays.txt", std::fstream::out);
     out << &(this->LookFrom);
 
+    // Initiate camera rays
     for (int y = 0; y < this->Ny; y++)
     {
         for (int x = 0; x < this->Nx; x++)
@@ -75,9 +76,26 @@ void Camera::init()
             Dir = *End - *Start;
             Ray r;
             r.setStart(Start);
-            r.setDir(Dir);
-            
-            
+            r.setDir(Dir); 
+
+           this->rayScreen.push_back(r); 
+        }
+    }
+}
+
+void Camera::printImage()
+{
+    std::ofstream out;
+    out.open("RESULT.png", std::fstream::out);
+
+    out << "P3\n" << this->Nx << " " << this->Ny << "\n255\n";
+    for (int y = 0; y < this->Ny; y++)
+    {
+        for (int x = 0; x < this->Nx; x++)
+        {
+            out << this->rayScreen[y * Nx + x].getR() << " " <<
+                   this->rayScreen[y * Nx + x].getG() << " " <<
+                   this->rayScreen[y * Nx + x].getB() << "\n";
         }
     }
 }
