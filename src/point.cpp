@@ -31,6 +31,22 @@ Point * Point::norm()
     return result;
 }
 
+// Dot product of two points treated like vectors
+float Point::dot(Point *p)
+{
+    return this->x * p->x + this->y * p->y + this->z * p->z;
+}
+
+// Cross product of two points treated like vectors
+Point* Point::cross(Point * p)
+{
+    Point * result = new Point(this->y * p->z - this->z * p->y,
+                               this->z * p->x - this->x * p->z,
+                               this->x * p->y - this->y * p->x);
+
+    return result;
+}
+
 // Calculates the Euclidean distance between 2 points
 float Point::dist(Point * p)
 {
@@ -260,6 +276,20 @@ void Ray::setColor(int r, int g, int b)
     this->R = r;
     this->G = g;
     this->B = b;
+}
+
+void Ray::setDir(Point *p)
+{
+    this->x = p->X();
+    this->y = p->Y();
+    this->z = p->Z();
+}
+
+void Ray::setStart(Point *p)
+{
+    this->posx = p->X();
+    this->posy = p->Y();
+    this->posz = p->Z();
 }
 
 Point * Ray::propagate(float time)

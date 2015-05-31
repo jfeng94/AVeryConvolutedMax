@@ -1,6 +1,9 @@
-#include "point.cpp"
-#include "superquadric.cpp"
-#include "matrix.cpp"
+#include "camera.h"
+#include "point.h"
+#include "superquadric.h"
+#include "matrix.h"
+
+#include <fstream>
 
 Camera::Camera()
 {
@@ -36,4 +39,45 @@ void Camera::init()
 {
     // Solve for film height
     this->Fy       = (Fx / Nx) * Ny;
+
+    float dFx = Fx / Nx;
+    float dFy = Fy / Ny;
+
+    // Get the directional vector for the camera
+    Point * A = (this->LookFrom - this->LookAt)->norm();
+    
+    // Project A onto our Upwards vector
+    float alpha = A->dot(&(this->Up)) / A->dot(A);
+    Point * B = (this->Up - *(*A * alpha))->norm();
+
+    // Get the orthogonal vector to A and B
+    Point * C = (A->cross(B))->norm();
+
+    // Get incremental vectors
+    Point *DFx = *C * dFx;
+    Point *DFy = *B * dFy;
+
+    // Get upper left corner
+    Point * Start = *(*A * Fd) + *(*(*DFy * (1.0 * Ny / 2)) - *(*DFx * (1.0 * Nx / 2)));
+    Point * End;
+    Point * Dir;
+
+    std::ofstream out;
+    out.open("MatlabTools/CameraRays.txt", std::fstream::out);
+    out << &(this->LookFrom);
+
+    for (int y = 0; y < this->Ny; y++)
+    {
+        for (int x = 0; x < this->Nx; x++)
+        {
+            End = *(*Start + *(*DFx * x)) + *(*DFy * y);
+            out << End;
+            Dir = *End - *Start;
+            Ray r;
+            r.setStart(Start);
+            r.setDir(Dir);
+            
+            
+        }
+    }
 }

@@ -37,6 +37,8 @@ class Point
 
         // Other functions
         Point * norm();
+        float   dot(Point*);
+        Point * cross(Point*);
         float   dist(Point*);
 
         // Operator overloads
@@ -76,6 +78,8 @@ class Ray : public Point
         Ray(Point*, Point *);
 
         void setColor(int, int, int);
+        void setStart(Point*);
+        void setDir(Point*);
         Point * propagate(float);
 };
 
