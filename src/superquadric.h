@@ -17,8 +17,13 @@ class Superquadric {
         Superquadric(Point*, Point*, Point*, float, float, float);
 
         Point * applyTransforms(Point *);
-        float isq(Point *);
-        bool contains(Point *); // Checks inside-outsideness of point 
+        float   isq(Point *);
+        float   isq_prime(Point *, Ray);
+        Point * isq_g(Point *);
+        Point * getNormal(Point *);
+        float   get_initial_guess(Ray);
+        float   get_intersection(Ray);
+        Point * rayTrace(Ray);
 };
 
 

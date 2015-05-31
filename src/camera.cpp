@@ -99,3 +99,4 @@ void Camera::printImage()
         }
     }
 }
+

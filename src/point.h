@@ -80,6 +80,8 @@ class Ray : public Point
         void setColor(int, int, int);
         void setStart(Point*);
         void setDir(Point*);
+        Point * getStart() {return new Point(this->posx, this->posy, this->posz);}
+        Point * getDir()   {return new Point(this->x, this->y, this->z);}
         float getR() {return this->R;}
         float getG() {return this->G;}
         float getB() {return this->B;}
