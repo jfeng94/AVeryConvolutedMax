@@ -3,6 +3,7 @@
 
 #include "point.h"
 #include "superquadric.h"
+#include "matrix."
 #include <vector>
 
 class Camera
