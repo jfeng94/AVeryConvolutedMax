@@ -11,7 +11,7 @@ int main()
     Superquadric s;
 
     rot              = new Point(1, 0, 0);
-    tra              = new Point(0, 0, 0);
+    tra              = new Point(1, 0, 0);
     sca              = new Point(1, 1, 1);
     theta             = 0;
     e                 = 0.1;

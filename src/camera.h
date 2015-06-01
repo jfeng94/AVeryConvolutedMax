@@ -3,7 +3,7 @@
 
 #include "point.h"
 #include "superquadric.h"
-
+#include "matrix.h"
 #include <vector>
 
 // TODO When ready, add Thrust library, convert vector to thrust vectors

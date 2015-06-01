@@ -2,7 +2,7 @@
 #define MATRIX_H
 
 #include <iostream>
-
+#include <cstdlib>
 #include "point.h"
 
 // Base matrix class
