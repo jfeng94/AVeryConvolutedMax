@@ -1,21 +1,20 @@
-#ifndef CAMERA_H_
-#define CAMERA_H_
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include "point.h"
 #include "superquadric.h"
-#include "matrix."
+#include "matrix.h"
 #include <vector>
 
+// TODO When ready, add Thrust library, convert vector to thrust vectors
 class Camera
 {
     private:
-        std::vector<std::vector<Ray *>> rayScreen;
+        std::vector<Ray> rayScreen;
         Point LookFrom, LookAt, Up;
         Point e1, e2, e3;
-        float Fd;
-        int Fx, Fy, Nx, Ny;
-
-        Camera();
+        float Fd, Fx, Fy;
+        int Nx, Ny;
 
         void init();
     public:
@@ -25,7 +24,9 @@ class Camera
         // Camera constructor
         //     LookFrom LookAt   Fd     Fx     Nx     Ny
         Camera(Point *, Point *, Point *, float, float, float, float);
-        RayTrace(std::vector<Superquadric *>);
+        void runRayTracer(std::vector<Superquadric>);
 
+        void printImage();
 };
-#endif // CAMERA_H_
+
+#endif
