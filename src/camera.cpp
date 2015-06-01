@@ -89,7 +89,8 @@ void Camera::init()
 ///////////////////////////////////////////////////////////////////////////////
 // RAY TRACER! WE NEED TO KERNELIZE THIS!
 ///////////////////////////////////////////////////////////////////////////////
-void Camera::runRayTracer(std::vector<Superquadric> scene)
+void Camera::runRayTracer(std::vector<Superquadric> scene,
+                          std::vector<pointLight> lights)
 {
     for (int i = 0; i < scene.size(); i++)
     {
@@ -98,7 +99,7 @@ void Camera::runRayTracer(std::vector<Superquadric> scene)
             //std::cout << "\n";
             //std::cout << "Tracing pixel: (" << px / this->Nx << "," << px % Nx << ")\n";
             //std::cout << "Point " << this->rayScreen[px].getStart();
-            scene[i].rayTrace(this->rayScreen[px]);
+            scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights);
         }
     }
 }

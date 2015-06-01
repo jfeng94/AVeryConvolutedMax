@@ -57,6 +57,16 @@ float Point::dist(Point * p)
     return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
+Point * Point::cwiseMin(Point *p)
+{
+    float minx, miny, minz;
+    minx = (this->x < p->X()) ? this->x : p->X();
+    miny = (this->y < p->Y()) ? this->y : p->Y();
+    minz = (this->z < p->Z()) ? this->z : p->Z();
+
+    return new Point (minx, miny, minz);
+}
+
 // OPERATOR OVERLOADS
 Point * Point::operator+(Point p)
 {
@@ -297,4 +307,69 @@ Point * Ray::propagate(float time)
     return new Point(this->x * time + this->posx,
                      this->y * time + this->posy,
                      this->z * time + this->posz);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Point Light operations
+///////////////////////////////////////////////////////////////////////////////
+pointLight::pointLight()
+{
+    this->setPos(0, 5, 5);
+    this->setColor(250, 100, 25);
+    this->setAtt_k(0.008);
+}
+
+pointLight::pointLight(float X, float Y, float Z,
+                       int r, int g, int b, float att_k)
+{
+    this->setPos(X, Y, Z);
+    this->setColor(r, g, b);
+    this->setAtt_k(att_k);
+}
+
+pointLight::pointLight(Point * p, int r, int g, int b, float att_k)
+{
+    this->setPos(p);
+    this->setColor(r, g, b);
+    this->setAtt_k(att_k);
+}
+
+void pointLight::setColor(int r, int g, int b)
+{
+    this->R = r;
+    this->G = g;
+    this->B = b;
+}
+
+Point * pointLight::getColor()
+{
+    return new Point(this->R, this->G, this->B);
+}
+
+void pointLight::setAtt_k(float att_k)
+{
+    this->attenuation_k = att_k;
+}
+
+float pointLight::getAtt_k()
+{
+    return this->attenuation_k;
+}
+
+void pointLight::setPos(Point *p)
+{
+    this->setPos(p->X(), p->Y(), p->Z());
+}
+
+void pointLight::setPos(float X, float Y, float Z)
+{
+    this->x = X;
+    this->y = Y;
+    this->x = Z;
+}
+
+Point * pointLight::getPos()
+{
+    return new Point(this->x, this->y, this->z);
 }
