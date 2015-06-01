@@ -71,14 +71,34 @@ void Camera::init()
     {
         for (int x = 0; x < this->Nx; x++)
         {
-            End = *(*Start + *(*DFx * x)) + *(*DFy * y);
+            float px = (x * dFx) - (Fx / (double) 2);
+            float py = (y * dFy) - (Fy / (double) 2);
+            //End = *(*Start + *(*DFx * x)) + *(*DFy * y);
+            End = *(this->LookFrom - *(*A * Fd)) + *(*(*C * px) + *(*B * py));
             out << End;
-            Dir = *End - *Start;
+            Dir = *End - (this->LookFrom);
             Ray r;
-            r.setStart(Start);
+            r.setStart(&(this->LookFrom));
             r.setDir(Dir); 
 
            this->rayScreen.push_back(r); 
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// RAY TRACER! WE NEED TO KERNELIZE THIS!
+///////////////////////////////////////////////////////////////////////////////
+void Camera::runRayTracer(std::vector<Superquadric> scene)
+{
+    for (int i = 0; i < scene.size(); i++)
+    {
+        for (int px = 0; px < this->rayScreen.size(); px++)
+        {
+            //std::cout << "\n";
+            //std::cout << "Tracing pixel: (" << px / this->Nx << "," << px % Nx << ")\n";
+            //std::cout << "Point " << this->rayScreen[px].getStart();
+            scene[i].rayTrace(this->rayScreen[px]);
         }
     }
 }
