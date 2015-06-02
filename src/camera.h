@@ -24,7 +24,7 @@ class Camera
         // Camera constructor
         //     LookFrom LookAt   Fd     Fx     Nx     Ny
         Camera(Point *, Point *, Point *, float, float, float, float);
-        void runRayTracer(std::vector<Superquadric>);
+        void runRayTracer(std::vector<Superquadric>, std::vector<pointLight>);
 
         void printImage();
 };

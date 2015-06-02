@@ -40,6 +40,7 @@ class Point
         float   dot(Point*);
         Point * cross(Point*);
         float   dist(Point*);
+        Point * cwiseMin(Point *);
 
         // Operator overloads
         Point * operator+ (Point);
@@ -88,4 +89,25 @@ class Ray : public Point
         Point * propagate(float);
 };
 
+// Point light source in 3D coordinates
+class pointLight : public Point
+{
+    protected:
+        int R, G, B;
+        float attenuation_k;
+
+    public:
+        pointLight();
+        pointLight(float, float, float, int, int, int, float);
+        pointLight(Point *, int, int, int, float);
+
+        void    setColor(int, int, int);
+        Point * getColor();
+        void    setAtt_k(float);
+        float   getAtt_k();
+        void    setPos(Point *p);
+        void    setPos(float, float, float);
+        Point * getPos();
+
+};
 #endif

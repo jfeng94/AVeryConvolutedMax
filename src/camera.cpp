@@ -89,8 +89,15 @@ void Camera::init()
 ///////////////////////////////////////////////////////////////////////////////
 // RAY TRACER! WE NEED TO KERNELIZE THIS!
 ///////////////////////////////////////////////////////////////////////////////
-void Camera::runRayTracer(std::vector<Superquadric> scene)
+void Camera::runRayTracer(std::vector<Superquadric> scene,
+                          std::vector<pointLight> lights)
 {
+    // Flush analytical output data
+    std::ofstream out;
+    out.open("MatlabTools/TestRay.txt", std::fstream::out);
+    out.close();
+    out.open("MatlabTools/TestNormals.txt", std::fstream::out);
+    out.close();
     for (int i = 0; i < scene.size(); i++)
     {
         for (int px = 0; px < this->rayScreen.size(); px++)
@@ -98,7 +105,7 @@ void Camera::runRayTracer(std::vector<Superquadric> scene)
             //std::cout << "\n";
             //std::cout << "Tracing pixel: (" << px / this->Nx << "," << px % Nx << ")\n";
             //std::cout << "Point " << this->rayScreen[px].getStart();
-            scene[i].rayTrace(this->rayScreen[px]);
+            scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights);
         }
     }
 }
@@ -109,9 +116,9 @@ void Camera::printImage()
     out.open("RESULT.png", std::fstream::out);
 
     out << "P3\n" << this->Nx << " " << this->Ny << "\n255\n";
-    for (int y = 0; y < this->Ny; y++)
+    for (int y = this->Ny; y > 0; y--)
     {
-        for (int x = 0; x < this->Nx; x++)
+        for (int x = this->Nx; x > 0; x--)
         {
             out << this->rayScreen[y * Nx + x].getR() << " " <<
                    this->rayScreen[y * Nx + x].getG() << " " <<

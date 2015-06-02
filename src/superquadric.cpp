@@ -3,6 +3,7 @@
 #include "point.h"
 
 #include <math.h>
+#include <vector>
 #include <fstream>
 #include <iostream>
 #include <float.h>
@@ -25,13 +26,39 @@ Superquadric::Superquadric(float E, float N)
 // Fully customized superquadric constructor.
 Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
                            float theta, float E, float N)
-    {
+{
     this->t.set(tra);
     this->s.set(sca);
     this->r.set(rot->norm());
     this->r.setTheta(theta);
     this->e = E;
     this->n = N;
+
+    this->ambient = *(new Point(255, 255, 255));
+    this->specular = *(new Point(155, 155, 155));
+    this->diffuse = *(new Point(155, 155, 155));
+}
+
+// Fully customized superquadric constructor.
+Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
+                           float theta, float E, float N,
+                           Point * dif, Point * amb, Point * spe,
+                           float shi, float sne, float opa )
+{
+    this->t.set(tra);
+    this->s.set(sca);
+    this->r.set(rot->norm());
+    this->r.setTheta(theta);
+    this->e = E;
+    this->n = N;
+
+    this->diffuse  = *dif;
+    this->ambient  = *amb;
+    this->specular = *spe;
+
+    this->shine   = shi;
+    this->snell   = sne;
+    this->opacity = opa;
 }
 
 Point * Superquadric::applyTransforms(Point * p)
@@ -52,7 +79,8 @@ Point * Superquadric::applyDirTransforms(Point *p)
 // Check if a given point is inside or outside of the 
 float Superquadric::isq(Point *p)
 {
-    Point * transP = this->applyTransforms(p);
+    Point * transP = p;
+    //Point * transP = this->applyTransforms(p);
     //std::cout << "ISQ --\n" << p;
     //std::cout << transP;
     return pow(pow(transP->X() * transP->X(), (double) 1 / e) +
@@ -73,12 +101,12 @@ Point * Superquadric::isq_g(Point * p)
 
     if (n == 0)
     {
-        std::cout << "n is 0!\n";
+        //std::cout << "n is 0!\n";
         gx = gy = gz = FLT_MAX;
     }
     else if (e == 0)
     {
-        std::cout << "e is 0!\n";
+        //std::cout << "e is 0!\n";
         gx = gy = FLT_MAX;
         gz = (2 * z * pow(pow(z, 2), ((double) 1 / n) - 1)) / (double) n;
     }
@@ -156,7 +184,6 @@ float Superquadric::get_intersection(Ray r)
     // Get the time to propagate to the bounding sphere
     t_old = this->get_initial_guess(r);
     //std::cout << t_old << "\n";
-
     t_new = t_old;
 
     if (t_old == 0)
@@ -167,7 +194,6 @@ float Superquadric::get_intersection(Ray r)
     
     // Propagate the ray to the bounding sphere
     Point * intersect = r.propagate(t_old);
-    out << intersect;
     
     done = false;
     int iterations = 0;
@@ -175,6 +201,7 @@ float Superquadric::get_intersection(Ray r)
     {
         iterations++;
 
+        out << intersect;
         // Update t_old
         t_old = t_new;
         g       = this->isq(intersect);
@@ -187,6 +214,7 @@ float Superquadric::get_intersection(Ray r)
         {
             //std::cout << "Case 1\n";
             done = true;
+            out << intersect;
             return t_old;
         }
         // g'(x) = 0 but g not close to 0. No intersection.
@@ -205,6 +233,7 @@ float Superquadric::get_intersection(Ray r)
         {
             //std::cout << "Case 4\n";
             done = true;
+            out << intersect;
             return t_old;
         }
 
@@ -217,6 +246,7 @@ float Superquadric::get_intersection(Ray r)
 
     //std::cout << "Case 5\n";
     // Return found time
+    out << intersect;
     return t_new;
 }
 
@@ -230,7 +260,55 @@ Point * Superquadric::getNormal(Point * p)
     return n;
 }
 
-void Superquadric::rayTrace(Ray &r)
+// Lighting contribution algorithm: Phong's
+Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
+                               std::vector<pointLight> lights)
+{
+    Point * difSum = new Point(0, 0, 0);
+    Point * speSum = new Point(0, 0, 0);
+    Point * reflLight = new Point(0, 0, 0);
+    Point * refrLight = new Point(0, 0, 0);
+    
+    // Direction from point to source (Usually camera)
+    Point * eDir = (*lookFrom - *p)->norm();
+
+    for (int i = 0; i < lights.size(); i++)
+    {
+        // Solve for attenuation term
+        Point * lP  = lights[i].getPos();
+        Point * lC  = lights[i].getColor();
+        float att_k = lights[i].getAtt_k();
+
+        std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
+
+        Point * lDir = (*lP - *p)->norm();
+        float lightDist = lP->dist(p); 
+
+        float atten = 1 / (float) (1 + (att_k * lightDist * lightDist));
+
+        // Add diffusion factor to sum
+        float nDotl = n->dot(lDir);
+        Point * lDif = *lC * (atten * ((0 < nDotl) ? nDotl : 0));
+        *difSum += *lDif;
+
+        // Add specular factor to sum
+        Point *dirDif = (*eDir + *lDir)->norm();
+        float nDotDir = n->dot(dirDif);
+        Point * lSpe  = *lC * (atten * pow(((0 < nDotDir && 0 < nDotl) ? nDotDir : 0), shine));
+        *speSum += *lSpe;
+    }
+    
+    Point * min = new Point(255, 255, 255);
+    Point * result =  min->cwiseMin(*(*(*difSum / 255) * this->diffuse) +
+                                    *(*(*speSum / 255) * this->specular));
+    //std::cout << "Normal v:  " << n;
+    //std::cout << "Diffusion: " << *difSum * this->diffuse;
+    //std::cout << "Specular:  " << *speSum * this->specular;
+    //std::cout << result;
+    return result;
+} 
+
+void Superquadric::rayTrace(Ray &r, Point * lookFrom, std::vector<pointLight> lights)
 {
     Point * origin = r.getStart();
     Point * dir    = r.getDir();
@@ -250,9 +328,25 @@ void Superquadric::rayTrace(Ray &r)
     // Check for intersection
     float intersects = get_intersection(transR);
     
+    std::ofstream out;
+    out.open("MatlabTools/TestNormals.txt", std::fstream::app);
+
     if (intersects != 0)
     {
+        // Calculate the intersection point
+        Point * pTran = transR.propagate(intersects);
+        Point * pTrue = r.propagate(intersects);
+
+
+        // Get the normal at the intersection point
+        Point * n = (this->getNormal(pTran))->norm();
+
+        Point *showNorm = *pTran + *(*n / 10);
+
+        out << pTran->X() << " " << pTran->Y() << " " << pTran->Z() << " " << showNorm;
+
+        Point * color = lighting(pTrue, n, lookFrom, lights);
         //std::cout << "Setting white pixel...\n";
-        r.setColor(255, 255, 255);
+        r.setColor(color->X(), color->Y(), color->Z());
     }
 }
