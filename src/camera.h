@@ -26,6 +26,7 @@ class Camera
         Camera(Point *, Point *, Point *, float, float, float, float);
         void runRayTracer(std::vector<Superquadric>, std::vector<pointLight>);
 
+        void scenePrep(std::vector<Superquadric>);
         void printImage();
 };
 

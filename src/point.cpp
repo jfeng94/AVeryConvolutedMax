@@ -243,10 +243,8 @@ Ray::Ray()
     this->posz = 0;
     
     // Default color black
-    this->R = 0;
-    this->G = 0;
-    this->B = 0;
-    this->d = FLT_MAX;
+    this->setColor(0, 0, 0);
+    this->t = FLT_MAX;
 }
 
 Ray::Ray(float X, float Y, float Z, float dX, float dY, float dZ)
@@ -259,10 +257,8 @@ Ray::Ray(float X, float Y, float Z, float dX, float dY, float dZ)
     this->posz = Z;
 
     // Default color black
-    this->R = 0;
-    this->G = 0;
-    this->B = 0;
-    this->d = FLT_MAX;
+    this->setColor(0, 0, 0);
+    this->t = FLT_MAX;
 }
 
 Ray::Ray(Point* dp, Point *p)
@@ -275,10 +271,8 @@ Ray::Ray(Point* dp, Point *p)
     this->posz = p->Z();
     
     // Default color black./
-    this->R = 0;
-    this->G = 0;
-    this->B = 0;
-    this->d = FLT_MAX;
+    this->setColor(0, 0, 0);
+    this->t = FLT_MAX;
 }
 
 void Ray::setColor(int r, int g, int b)

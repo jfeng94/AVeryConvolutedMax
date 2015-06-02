@@ -89,6 +89,15 @@ void Camera::init()
 ///////////////////////////////////////////////////////////////////////////////
 // RAY TRACER! WE NEED TO KERNELIZE THIS!
 ///////////////////////////////////////////////////////////////////////////////
+
+void Camera::scenePrep(std::vector<Superquadric> scene)
+{
+    for (int i = 0; i < scene.size(); i++)
+    {
+        scene[i].setNum(i);
+    }
+}
+
 void Camera::runRayTracer(std::vector<Superquadric> scene,
                           std::vector<pointLight> lights)
 {
@@ -98,14 +107,25 @@ void Camera::runRayTracer(std::vector<Superquadric> scene,
     out.close();
     out.open("MatlabTools/TestNormals.txt", std::fstream::out);
     out.close();
+    out.open("MatlabTools/TestShadows.txt", std::fstream::out);
+    out.close();
+
+    // Prep the scene
+    this->scenePrep(scene);
+    
+    // Add an eye light
+    pointLight * l = new pointLight(this->LookFrom.X(),
+                                    this->LookFrom.Y(),
+                                    this->LookFrom.Z(),
+                                    255, 255, 255,
+                                    1);
+    lights.push_back(*l);
+
     for (int i = 0; i < scene.size(); i++)
     {
         for (int px = 0; px < this->rayScreen.size(); px++)
         {
-            //std::cout << "\n";
-            //std::cout << "Tracing pixel: (" << px / this->Nx << "," << px % Nx << ")\n";
-            //std::cout << "Point " << this->rayScreen[px].getStart();
-            scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights);
+            scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights, scene);
         }
     }
 }
