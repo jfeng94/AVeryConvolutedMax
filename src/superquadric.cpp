@@ -8,6 +8,10 @@
 #include <iostream>
 #include <float.h>
 
+///////////////////////////////////////////////////////////////////////////////
+// CONSTRUCTORS
+///////////////////////////////////////////////////////////////////////////////
+
 // Create a sphere at the origin of the scene.
 Superquadric::Superquadric()
 {
@@ -23,7 +27,7 @@ Superquadric::Superquadric(float E, float N)
     this->n = N;
 }
 
-// Fully customized superquadric constructor.
+// Basic customized superquadric constructor.
 Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
                            float theta, float E, float N)
 {
@@ -37,6 +41,8 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
     this->ambient = *(new Point(255, 255, 255));
     this->specular = *(new Point(155, 155, 155));
     this->diffuse = *(new Point(155, 155, 155));
+
+    this->shine = 5;
 }
 
 // Fully customized superquadric constructor.
@@ -61,14 +67,12 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
     this->opacity = opa;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// POINT TRANSFORMATION FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////
 Point * Superquadric::applyTransforms(Point * p)
 {
-    //std::cout << "Translate: " << this->t.unapply(p);
-    //std::cout << "Rotate   : " << this->r.unapply(this->t.unapply(p));
-    //std::cout << "Scale    : " << this->s.unapply(this->r.unapply(this->t.unapply(p)));
-    Point * res = this->s.unapply(this->r.unapply(this->t.unapply(p)));
-
-    return res;
+    return this->s.unapply(this->r.unapply(this->t.unapply(p)));
 }
 
 Point * Superquadric::applyDirTransforms(Point *p)
@@ -76,6 +80,19 @@ Point * Superquadric::applyDirTransforms(Point *p)
     return this->s.unapply(this->r.unapply(p));
 }
 
+Point * Superquadric::revertTransforms(Point * p)
+{
+    return this->t.apply(this->r.apply(this->s.apply(p)));
+}
+
+Point * Superquadric::revertDirTransforms(Point * p)
+{
+    return this->r.apply(this->s.apply(p));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SUPERQUADRIC FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////
 // Check if a given point is inside or outside of the 
 float Superquadric::isq(Point *p)
 {
@@ -87,6 +104,14 @@ float Superquadric::isq(Point *p)
                pow(transP->Y() * transP->Y(), (double) 1 / e),
                e / n) +
            pow(transP->Z() * transP->Z(), (double) 1 / n) - 1;
+}
+
+// Get the derivative at a point emanating from a ray.
+float Superquadric::isq_prime(Point *p, Ray r)
+{
+    Point * g = this->isq_g(p);;
+    
+    return g->dot(r.getDir());
 }
 
 // Get the gradient vector of the superquadric
@@ -112,32 +137,33 @@ Point * Superquadric::isq_g(Point * p)
     }
     else
     {
-        float xterm = pow(pow(x, 2), (double) 1 / e);
-        float yterm = pow(pow(y, 2), (double) 1 / e);
+        float xterm  = pow(x * x, (double) 1 / e);
+        float yterm  = pow(y * y, (double) 1 / e);
         float xyterm = pow(xterm + yterm, ((double) e /n ) - 1);
-        float x2term = (2 * x * pow(pow(x, 2), ((double) 1 / e) - 1));
-        float y2term = (2 * y * pow(pow(y, 2), ((double) 1 / e) - 1));
-        gx = x2term * xyterm / (double) n;
-        gy = y2term * xyterm / (double) n;
-        gz = (2 * z * pow(pow(z, 2), ((double) 1 / n) - 1)) / (double) n;
+        float x2term = (2 * x * pow(x * x, ((double) 1 / e) - 1));
+        float y2term = (2 * y * pow(y * y, ((double) 1 / e) - 1));
+        gx           = x2term * xyterm / (double) n;
+        gy           = y2term * xyterm / (double) n;
+        gz           = (2 * z * pow(z * z, ((double) 1 / n) - 1)) / (double) n;
     }
-    //gx = 2 * x * pow((x * x), (1.0 / this->e - 1)) *
-    //     pow(pow((x * x), (1.0 / this->e)) + pow((y * y), (1.0 / this->e)), (this->e / this->n - 1)) / this->n;
-    //gy = 2 * y * pow((y * y), (1.0 / this->e - 1)) *
-    //     pow(pow((x * x), (1.0 / this->e)) + pow((y * y), (1.0 / this->e)), (this->e / this->n - 1)) / this->n;
-    //gz = 2 * z * pow((z * z), (1.0 / this->n - 1)) / this->n;
 
     return new Point(gx, gy, gz);
 }
 
-// Get the derivative at a point emanating from a ray.
-float Superquadric::isq_prime(Point *p, Ray r)
+// Return the normal vector of the surface at a point p
+Point * Superquadric::getNormal(Point * p)
 {
-    Point * g = this->isq_g(p);;
+    float norm, x, y, z;
+
+    Point * n = this->isq_g(p);
+    n = n->norm();
     
-    return g->dot(r.getDir());
+    return n;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// CORE RAY TRACING FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////
 // Function to get initial time guess
 float Superquadric::get_initial_guess(Ray r)
 {
@@ -250,16 +276,53 @@ float Superquadric::get_intersection(Ray r)
     return t_new;
 }
 
-Point * Superquadric::getNormal(Point * p)
+void Superquadric::rayTrace(Ray &r, Point * lookFrom, std::vector<pointLight> lights)
 {
-    float norm, x, y, z;
+    Point * origin = r.getStart();
+    Point * dir    = r.getDir();
 
-    Point * n = this->isq_g(p);
-    n = n->norm();
+    // Transform frame of reference so that this object is at origin.
+    origin = this->applyTransforms(origin);
+    dir    = (this->applyDirTransforms(dir))->norm();
     
-    return n;
+    //std::cout << "Transformed origin: " << origin;
+    //std::cout << "Transformed direct: " << dir;
+
+    // Create new ray to do intersection test
+    Ray transR;
+    transR.setStart(origin);
+    transR.setDir(dir);
+
+    // Check for intersection
+    float intersects = get_intersection(transR);
+    
+    std::ofstream out;
+    out.open("MatlabTools/TestNormals.txt", std::fstream::app);
+
+    // If there is an intersection
+    if (intersects != 0 && intersects < r.getTime())
+    {
+        // Calculate the intersection point
+        Point * pTran = transR.propagate(intersects);
+        Point * pTrue = r.propagate(intersects);
+
+
+        // Get the normal at the intersection point
+        Point * n = this->revertDirTransforms((this->getNormal(pTran))->norm());
+
+        Point *showNorm = *pTran + *(*n / 10);
+
+        out << pTran->X() << " " << pTran->Y() << " " << pTran->Z() << " " << showNorm;
+
+        Point * color = lighting(pTrue, n, lookFrom, lights);
+        //std::cout << "Setting white pixel...\n";
+        r.setColor(color->X(), color->Y(), color->Z());
+    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// LIGHT MODELING FUNCTIONS 
+///////////////////////////////////////////////////////////////////////////////
 // Lighting contribution algorithm: Phong's
 Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
                                std::vector<pointLight> lights)
@@ -279,7 +342,7 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
         Point * lC  = lights[i].getColor();
         float att_k = lights[i].getAtt_k();
 
-        std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
+        //std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
 
         Point * lDir = (*lP - *p)->norm();
         float lightDist = lP->dist(p); 
@@ -308,45 +371,3 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
     return result;
 } 
 
-void Superquadric::rayTrace(Ray &r, Point * lookFrom, std::vector<pointLight> lights)
-{
-    Point * origin = r.getStart();
-    Point * dir    = r.getDir();
-
-    // Transform frame of reference so that this object is at origin.
-    origin = this->applyTransforms(origin);
-    dir    = (this->applyDirTransforms(dir))->norm();
-    
-    //std::cout << "Transformed origin: " << origin;
-    //std::cout << "Transformed direct: " << dir;
-
-    // Create new ray to do intersection test
-    Ray transR;
-    transR.setStart(origin);
-    transR.setDir(dir);
-
-    // Check for intersection
-    float intersects = get_intersection(transR);
-    
-    std::ofstream out;
-    out.open("MatlabTools/TestNormals.txt", std::fstream::app);
-
-    if (intersects != 0)
-    {
-        // Calculate the intersection point
-        Point * pTran = transR.propagate(intersects);
-        Point * pTrue = r.propagate(intersects);
-
-
-        // Get the normal at the intersection point
-        Point * n = (this->getNormal(pTran))->norm();
-
-        Point *showNorm = *pTran + *(*n / 10);
-
-        out << pTran->X() << " " << pTran->Y() << " " << pTran->Z() << " " << showNorm;
-
-        Point * color = lighting(pTrue, n, lookFrom, lights);
-        //std::cout << "Setting white pixel...\n";
-        r.setColor(color->X(), color->Y(), color->Z());
-    }
-}

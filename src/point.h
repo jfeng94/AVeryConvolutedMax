@@ -72,20 +72,25 @@ class Ray : public Point
     protected:
         float posx, posy, posz;
         int R, G, B; // Returned color value
-        float d;     // Distance to closest object
+        float t;     // time to closest object
     public:
         Ray();
         Ray(float, float, float, float, float, float);
         Ray(Point*, Point *);
 
+        // Mutation functions
         void setColor(int, int, int);
         void setStart(Point*);
         void setDir(Point*);
-        Point * getStart() {return new Point(this->posx, this->posy, this->posz);}
-        Point * getDir()   {return new Point(this->x, this->y, this->z);}
+        void setTime(float T) {this->t = T;}
+
+        // Accessor functions
         float getR() {return this->R;}
         float getG() {return this->G;}
         float getB() {return this->B;}
+        float getTime() {return this->t;}
+        Point * getStart() {return new Point(this->posx, this->posy, this->posz);}
+        Point * getDir()   {return new Point(this->x, this->y, this->z);}
         Point * propagate(float);
 };
 
