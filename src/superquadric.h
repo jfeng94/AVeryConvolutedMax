@@ -20,6 +20,9 @@ class Superquadric {
         float snell;
         float opacity;
     
+        // Index to prevent self comparison
+        int obj_num;
+
     public:
         // Constructors
         Superquadric();
@@ -43,13 +46,19 @@ class Superquadric {
         // Basic raytracing functions
         float   get_initial_guess(Ray);
         float   get_intersection(Ray);
-        void    rayTrace(Ray&, Point * lookFrom, std::vector<pointLight>);
+        void    rayTrace(Ray&, Point * lookFrom,
+                         std::vector<pointLight>,
+                         std::vector<Superquadric>);
 
         // Light modeling functions 
         Point * lighting(Point * p, Point * n, Point * lookFrom,
-                         std::vector<pointLight>);
+                         std::vector<pointLight>,
+                         std::vector<Superquadric>);
 
-        bool    shadow(Point * p, std::vector<pointLight>);
+        bool    checkShadow(Point *, pointLight, std::vector<Superquadric>);
+
+        // Handle indexing
+        void setNum(int i) {this->obj_num = i;}
 };
 
 
