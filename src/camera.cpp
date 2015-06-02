@@ -113,7 +113,7 @@ void Camera::runRayTracer(std::vector<Superquadric> scene,
 void Camera::printImage()
 {
     std::ofstream out;
-    out.open("RESULT.png", std::fstream::out);
+    out.open("RESULT.ppm", std::fstream::out);
 
     out << "P3\n" << this->Nx << " " << this->Ny << "\n255\n";
     for (int y = this->Ny; y > 0; y--)
