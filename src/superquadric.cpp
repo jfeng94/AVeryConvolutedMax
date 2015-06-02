@@ -34,9 +34,9 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
     this->e = E;
     this->n = N;
 
-    this->ambient = *(new Point(155, 10, 10));
-    this->specular = *(new Point(155, 10, 10));
-    this->diffuse = *(new Point(155, 10, 10));
+    this->ambient = *(new Point(255, 255, 255));
+    this->specular = *(new Point(155, 155, 155));
+    this->diffuse = *(new Point(155, 155, 155));
 }
 
 // Fully customized superquadric constructor.
@@ -101,12 +101,12 @@ Point * Superquadric::isq_g(Point * p)
 
     if (n == 0)
     {
-        std::cout << "n is 0!\n";
+        //std::cout << "n is 0!\n";
         gx = gy = gz = FLT_MAX;
     }
     else if (e == 0)
     {
-        std::cout << "e is 0!\n";
+        //std::cout << "e is 0!\n";
         gx = gy = FLT_MAX;
         gz = (2 * z * pow(pow(z, 2), ((double) 1 / n) - 1)) / (double) n;
     }
@@ -279,6 +279,8 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
         Point * lC  = lights[i].getColor();
         float att_k = lights[i].getAtt_k();
 
+        std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
+
         Point * lDir = (*lP - *p)->norm();
         float lightDist = lP->dist(p); 
 
@@ -299,10 +301,10 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
     Point * min = new Point(255, 255, 255);
     Point * result =  min->cwiseMin(*(*(*difSum / 255) * this->diffuse) +
                                     *(*(*speSum / 255) * this->specular));
-    std::cout << "Normal v:  " << n;
-    std::cout << "Diffusion: " << *difSum * this->diffuse;
-    std::cout << "Specular:  " << *speSum * this->specular;
-    std::cout << result;
+    //std::cout << "Normal v:  " << n;
+    //std::cout << "Diffusion: " << *difSum * this->diffuse;
+    //std::cout << "Specular:  " << *speSum * this->specular;
+    //std::cout << result;
     return result;
 } 
 

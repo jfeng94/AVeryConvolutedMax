@@ -316,8 +316,8 @@ Point * Ray::propagate(float time)
 pointLight::pointLight()
 {
     this->setPos(5, 5, 5);
-    this->setColor(250, 100, 25);
-    this->setAtt_k(0.008);
+    this->setColor(0, 140, 125);
+    this->setAtt_k(0.0005);
 }
 
 pointLight::pointLight(float X, float Y, float Z,
@@ -366,7 +366,7 @@ void pointLight::setPos(float X, float Y, float Z)
 {
     this->x = X;
     this->y = Y;
-    this->x = Z;
+    this->z = Z;
 }
 
 Point * pointLight::getPos()

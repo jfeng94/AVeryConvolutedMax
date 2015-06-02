@@ -8,7 +8,7 @@
 Camera::Camera()
 {
     this->LookAt   = * (new Point());
-    this->LookFrom = * (new Point(5, 0, 0));
+    this->LookFrom = * (new Point(5, 5, 5));
     this->Up       = * (new Point(0, 0, 1));
     this->Fd       = 0.050;
     this->Fx       = 0.035;
@@ -92,6 +92,12 @@ void Camera::init()
 void Camera::runRayTracer(std::vector<Superquadric> scene,
                           std::vector<pointLight> lights)
 {
+    // Flush analytical output data
+    std::ofstream out;
+    out.open("MatlabTools/TestRay.txt", std::fstream::out);
+    out.close();
+    out.open("MatlabTools/TestNormals.txt", std::fstream::out);
+    out.close();
     for (int i = 0; i < scene.size(); i++)
     {
         for (int px = 0; px < this->rayScreen.size(); px++)
@@ -110,9 +116,9 @@ void Camera::printImage()
     out.open("RESULT.png", std::fstream::out);
 
     out << "P3\n" << this->Nx << " " << this->Ny << "\n255\n";
-    for (int y = 0; y < this->Ny; y++)
+    for (int y = this->Ny; y > 0; y--)
     {
-        for (int x = 0; x < this->Nx; x++)
+        for (int x = this->Nx; x > 0; x--)
         {
             out << this->rayScreen[y * Nx + x].getR() << " " <<
                    this->rayScreen[y * Nx + x].getG() << " " <<
