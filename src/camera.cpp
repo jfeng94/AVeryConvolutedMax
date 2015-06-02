@@ -8,7 +8,7 @@
 Camera::Camera()
 {
     this->LookAt   = * (new Point());
-    this->LookFrom = * (new Point(5, 5, 5));
+    this->LookFrom = * (new Point(5, 0, 0));
     this->Up       = * (new Point(0, 0, 1));
     this->Fd       = 0.050;
     this->Fx       = 0.035;

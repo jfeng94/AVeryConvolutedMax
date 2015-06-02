@@ -14,8 +14,8 @@ int main()
     tra              = new Point(0, 0, 0);
     sca              = new Point(1, 1, 1);
     theta             = 0;
-    e                 = 2;
-    n                 = 2;
+    e                 = 1;
+    n                 = 1;
     Superquadric * s2 = new Superquadric(tra, sca, rot, theta, e, n);
 
     std::vector<Superquadric> scene;

@@ -201,6 +201,7 @@ float Superquadric::get_intersection(Ray r)
     {
         iterations++;
 
+        out << intersect;
         // Update t_old
         t_old = t_new;
         g       = this->isq(intersect);
@@ -213,6 +214,7 @@ float Superquadric::get_intersection(Ray r)
         {
             //std::cout << "Case 1\n";
             done = true;
+            out << intersect;
             return t_old;
         }
         // g'(x) = 0 but g not close to 0. No intersection.
@@ -231,6 +233,7 @@ float Superquadric::get_intersection(Ray r)
         {
             //std::cout << "Case 4\n";
             done = true;
+            out << intersect;
             return t_old;
         }
 
@@ -261,7 +264,6 @@ Point * Superquadric::getNormal(Point * p)
 Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
                                std::vector<pointLight> lights)
 {
-    return new Point(255, 255, 255);
     Point * difSum = new Point(0, 0, 0);
     Point * speSum = new Point(0, 0, 0);
     Point * reflLight = new Point(0, 0, 0);
@@ -324,15 +326,24 @@ void Superquadric::rayTrace(Ray &r, Point * lookFrom, std::vector<pointLight> li
     // Check for intersection
     float intersects = get_intersection(transR);
     
+    std::ofstream out;
+    out.open("MatlabTools/TestNormals.txt", std::fstream::app);
+
     if (intersects != 0)
     {
         // Calculate the intersection point
-        Point * p = r.propagate(intersects);
+        Point * pTran = transR.propagate(intersects);
+        Point * pTrue = r.propagate(intersects);
+
 
         // Get the normal at the intersection point
-        Point * n = this->getNormal(p);
+        Point * n = (this->getNormal(pTran))->norm();
 
-        Point * color = lighting(p, n, lookFrom, lights);
+        Point *showNorm = *pTran + *(*n / 10);
+
+        out << pTran->X() << " " << pTran->Y() << " " << pTran->Z() << " " << showNorm;
+
+        Point * color = lighting(pTrue, n, lookFrom, lights);
         //std::cout << "Setting white pixel...\n";
         r.setColor(color->X(), color->Y(), color->Z());
     }
