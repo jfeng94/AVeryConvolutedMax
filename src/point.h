@@ -2,6 +2,7 @@
 #define POINT_H
 
 #include <iostream>
+#include <cmath>
 
 class Point 
 {

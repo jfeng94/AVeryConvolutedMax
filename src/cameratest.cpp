@@ -1,7 +1,7 @@
-#include "superquadric.cpp"
-#include "point.cpp"
-#include "matrix.cpp"
-#include "camera.cpp"
+#include "superquadric.h"
+#include "point.h"
+#include "matrix.h"
+#include "camera.h"
 
 int main()
 {
