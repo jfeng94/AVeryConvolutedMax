@@ -78,8 +78,8 @@ int main()
     Point * Up       = new Point(0, 0, 1);
     float Fd         = 0.05;
     float Fx         = 0.08;
-    float Nx         = 2880;
-    float Ny         = 1800;
+    float Nx         = 1920;
+    float Ny         = 1080;
     Camera *c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
     c->runRayTracer(scene, lights);
     c->printImage();
