@@ -1,7 +1,7 @@
 #include "camera.h"
-#include "point.h"
-#include "superquadric.h"
-#include "matrix.h"
+#include "point.cuh"
+#include "superquadric.cuh"
+#include "matrix.cuh"
 
 #include <fstream>
 
@@ -34,6 +34,7 @@ Camera::Camera(Point * LookFrom, Point * LookAt, Point * Up,
     // Initialize the other members of the camera
     this->init();
 }
+
 
 void Camera::init()
 {
@@ -84,6 +85,18 @@ void Camera::init()
            this->rayScreen.push_back(r); 
         }
     }
+}
+
+std::vector<Ray> Camera::getRayScreen() {
+    return this->rayScreen;
+}
+
+Point Camera::getLookFrom() {
+    return this->LookFrom;
+}
+
+void Camera::setRayScreen(std::vector<Ray> screen) {
+    this->rayScreen = screen;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,3 +160,16 @@ void Camera::printImage()
     }
 }
 
+void Camera::gpuPrintImage() {
+    std::ofstream out;
+    out.open("GPU_RESULT.ppm", std::fstream::out);
+
+    out << "P3\n" << this->Nx << " " << this->Ny << "\n255\n";
+    for (int y = this->Ny; y > 0; y--) {
+        for (int x = this->Nx; x > 0; x--) {
+            out << this->rayScreen[y * Nx + x].getR() << " " <<
+                   this->rayScreen[y * Nx + x].getG() << " " <<
+                   this->rayScreen[y * Nx + x].getB() << "\n";
+        }
+    }
+}
