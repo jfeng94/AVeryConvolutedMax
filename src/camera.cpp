@@ -1,7 +1,7 @@
 #include "camera.h"
-#include "point.h"
-#include "superquadric.h"
-#include "matrix.h"
+#include "point.cuh"
+#include "superquadric.cuh"
+#include "matrix.cuh"
 
 #include <fstream>
 

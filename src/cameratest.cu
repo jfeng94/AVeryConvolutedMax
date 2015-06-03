@@ -124,6 +124,12 @@ int main(int argc, char ** argv)
     std::vector<Ray> camScreen = d_c->getRayScreen();
     thrust::device_vector<Ray> d_screen(camScreen.begin(), camScreen.end());
 
+    Ray * rayStart = thrust::raw_pointer_cast(d_screen.data());
+    
+    Superquadric * supStart = thrust::raw_pointer_cast(d_scene.data());
+
+    pointLight * lightStart = thrust::raw_pointer_cast(d_lights.data());
+
     // Get size values for the thread resiliency...
     int d_scene_size = d_scene.size();
     int d_lights_size = d_lights.size();

@@ -41,9 +41,9 @@ class Superquadric {
         __host__ __device__ Point * revertDirTransforms(Point *);
 
         // Superquadric functions
-        float   isq(Point *);
-        float   isq_prime(Point *, Ray);
-        Point * isq_g(Point *);
+        __host__ __device__ float   isq(Point *);
+        __host__ __device__ float   isq_prime(Point *, Ray);
+        __host__ __device__ Point * isq_g(Point *);
         __host__ __device__ Point * getNormal(Point *);
 
         // Basic raytracing functions
@@ -58,7 +58,7 @@ class Superquadric {
                          std::vector<pointLight> lights,
                          std::vector<Superquadric> scene);
 
-        __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
+        __host__ __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
                          thrust::device_vector<pointLight> lights,
                          thrust::device_vector<Superquadric> scene);
 
