@@ -319,6 +319,7 @@ void Superquadric::rayTrace(Ray &r, Point * lookFrom,
         Point * color = lighting(pTrue, n, lookFrom, lights, scene);
         //std::cout << "Setting white pixel...\n";
         r.setColor(color->X(), color->Y(), color->Z());
+        r.setTime(intersects);
     }
 }
 
