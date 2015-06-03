@@ -12,6 +12,7 @@
 
 int main(int argc, char ** argv)
 {
+
     Point *rot, *tra, *sca, *dif, *amb, *spe;
     float theta, e, n, shi, sne, opa;
     
@@ -87,8 +88,8 @@ int main(int argc, char ** argv)
     Point * Up       = new Point(0, 0, 1);
     float Fd         = 0.05;
     float Fx         = 0.08;
-    float Nx         = 1920;
-    float Ny         = 1080;
+    float Nx         = 100;
+    float Ny         = 100;
     Camera *c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
 
     std::cout << "Raytracing..." << std::endl;
@@ -114,7 +115,7 @@ int main(int argc, char ** argv)
 
     // Create a new camera with the same things as above.
     Camera * d_c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
-
+    
     // Create two device_vectors from the std::vectors above.
     thrust::device_vector<Superquadric> d_scene(scene.begin(), scene.end());
     thrust::device_vector<pointLight> d_lights(lights.begin(), lights.end());
@@ -124,20 +125,15 @@ int main(int argc, char ** argv)
     std::vector<Ray> camScreen = d_c->getRayScreen();
     thrust::device_vector<Ray> d_screen(camScreen.begin(), camScreen.end());
 
-    Ray * rayStart = thrust::raw_pointer_cast(d_screen.data());
-    
-    Superquadric * supStart = thrust::raw_pointer_cast(d_scene.data());
-
-    pointLight * lightStart = thrust::raw_pointer_cast(d_lights.data());
-
     // Get size values for the thread resiliency...
-    int d_scene_size = d_scene.size();
-    int d_lights_size = d_lights.size();
-    int d_screen_size = d_screen.size();
+    unsigned int d_scene_size = d_scene.size();
+    unsigned int d_lights_size = d_lights.size();
+    unsigned int d_screen_size = d_screen.size();
 
     // Prepare the scene...
     cudaCallScenePrep(d_scene, d_scene_size, blocks, threadsPerBlock);
-
+    
+    std::cout << "Scene Done Being Prepared" << std::endl;
     // Running the Ray Tracer...
 
     // Adding an eye light
@@ -154,11 +150,23 @@ int main(int argc, char ** argv)
     cudaMalloc(&d_lookFrom, sizeof(Point));
     
     cudaMemcpy(d_lookFrom, &cLookFrom, sizeof(Point), cudaMemcpyHostToDevice);
+    
+    // TODO: Weird here. kernel has illegal memory access, for whatever reason. 
+    // Something probably to do with poor accessing, or maybe trying to get
+    // a member from something that we cannot get? The sizes of device_vector and 
+    // vector are equal, so I dunno what's up.
 
+    
     for(int i = 0; i < d_scene_size; i++) {
-        Superquadric object = d_scene[i];
-        cudaCallRayTrace(object, d_scene, d_lights, d_screen, d_screen_size, 
+        std::cout << i << "th shape in the scene" << std::endl;
+        Superquadric * d_shape;
+        cudaMalloc(&d_shape, sizeof(Superquadric));
+        cudaMemcpy(d_shape, &scene[i], sizeof(Superquadric), cudaMemcpyHostToDevice);
+	std::cout << "kernel called" << std::endl;
+        cudaCallRayTrace(d_shape, d_scene, d_lights, d_screen, d_screen_size, 
                          d_lookFrom, blocks, threadsPerBlock);
+
+        cudaFree(d_shape);
     }
 
 

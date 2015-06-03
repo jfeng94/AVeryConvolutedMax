@@ -2,6 +2,7 @@
 #include "matrix.cuh"
 #include "point.cuh"
 
+#include <cstdio>
 #include <math.h>
 #include <vector>
 #include <fstream>
@@ -115,9 +116,12 @@ float Superquadric::isq(Point *p)
 __host__ __device__ 
 float Superquadric::isq_prime(Point *p, Ray r)
 {
-    Point * g = this->isq_g(p);;
-    
-    return g->dot(r.getDir());
+    Point * g = this->isq_g(p);
+    Point * new_r = r.getDir();
+    float ret_val = g->dot(new_r);
+    delete new_r;
+    delete g;
+    return ret_val;
 }
 
 // Get the gradient vector of the superquadric
@@ -164,9 +168,10 @@ Point * Superquadric::getNormal(Point * p)
     float norm, x, y, z;
 
     Point * n = this->isq_g(p);
-    n = n->norm();
-    
-    return n;
+    Point * m = n->norm();
+    delete n;
+
+    return m;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -216,7 +221,7 @@ float Superquadric::get_intersection(Ray r)
 
     //std::ofstream out;
     //out.open("MatlabTools/TestRay.txt", std::fstream::app);
-    
+ 
     // Get the time to propagate to the bounding sphere
     t_old = this->get_initial_guess(r);
     //std::cout << t_old << "\n";
@@ -275,6 +280,9 @@ float Superquadric::get_intersection(Ray r)
 
         // Update new time guess
         t_new = t_old - (g / g_prime);
+        
+        // Delete the old pointer.
+        delete intersect;
 
         // Find the new intersection point.
         intersect = r.propagate(t_new);
@@ -283,6 +291,7 @@ float Superquadric::get_intersection(Ray r)
     //std::cout << "Case 5\n";
     // Return found time
     //out << intersect;
+    delete intersect;
     return t_new;
 }
 
