@@ -2,8 +2,15 @@
 #include "point.h"
 #include "matrix.h"
 #include "camera.h"
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <thrust/device_vector.h>
+#include <thrust/copy.h>
+#include <thrust/host_vector.h>
+#include "raytrace_cuda.cuh"
+#include <iostream>
 
-int main()
+int main(int argc, char * argv)
 {
     Point *rot, *tra, *sca, *dif, *amb, *spe;
     float theta, e, n, shi, sne, opa;
@@ -53,6 +60,8 @@ int main()
     Superquadric * s5 = new Superquadric(tra, sca, rot, theta, e, n,
                                          dif, amb, spe, shi, sne, opa);
 
+    // Preparing for CPU stuff
+    std::cout << "Preparing for CPU Raytracing..." << std::endl;
     std::vector<Superquadric> scene;
     scene.push_back(*s5);
     scene.push_back(*s1);
@@ -81,6 +90,96 @@ int main()
     float Nx         = 1920;
     float Ny         = 1080;
     Camera *c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
+
+    std::cout << "Raytracing..." << std::endl;
     c->runRayTracer(scene, lights);
+
+    std::cout << "Printing..." << std::endl;
     c->printImage();
+
+    std::cout << "CPU RayTracing done!" << std::endl;
+
+    // Now, for GPU implementation
+    if (argc != 3) {
+        std::cout << "For GPU usage: ./cameratest <numBlocks> <threadsPerBlock>" << endl;
+        return 0;
+    }
+
+    std::cout << "Preparing for GPU Raytracing..." << std::endl;
+    // First, get number of blocks
+    int blocks = stoi(arg[1]);
+
+    // Then, threadsPerBlock
+    int threadsPerBlock = stoid(arg[2]);
+
+    // Create a new camera with the same things as above.
+    Camera * d_c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
+
+    // Create two device_vectors from the std::vectors above.
+    thrust::device_vector<Superquadric> d_scene(scene.begin(), scene.end());
+    thrust::device_vector<pointLight> d_lights(lights.begin(), lights.end());
+
+    // Create a device_vector based on the screen from the camera.
+    thrust::device_vector<Ray> d_screen(d_c->rayScreen.begin(), d_c->rayScreen.end());
+
+    // Get size values for the thread resiliency...
+    int d_scene_size = d_scene.size();
+    int d_lights_size = d_lights.size();
+    int d_screen_size = d_screen.size();
+
+    // Prepare the scene...
+    cudaCallScenePrep(d_scene, d_scene_size, blocks, threadsPerBlock);
+
+    // Running the Ray Tracer...
+
+    // Adding an eye light
+    pointLight *d_l = new pointLight(this->LookFrom.X(),
+                                     this->LookFrom.Y(),
+                                     this->LookFrom.Z(),
+                                     255, 255, 255, 1);
+    d_lights.push_back(*d_l);
+
+    std::cout << "Raytracing..." << std::endl;
+    // Allocate space for the point on the GPU
+    Point * d_lookFrom;
+    cudaMalloc(&d_lookFrom, sizeof(Point));
+    cudaMemcpy(d_lookFrom, &d_c->LookFrom, sizeof(Point), cudaMemcpyHostToDevice);
+
+    for(int i = 0; i < d_scene_size; i++) {
+        Superquadric object = d_scene[i];
+        cudaCallRayTrace(object, d_scene, d_lights, d_screen, d_screen_size, 
+                         d_lookFrom, blocks, threadsPerBlock);
+    }
+
+
+    // The screen is done. Set the camera's ray vector to be equal to the 
+    // screen thrust::vector.
+    std::vector<Ray> out_screen;
+    thrust::copy(d_screen.begin(), d_screen.end(), out_screen.begin());
+    d_c->rayScreen = out_screen;
+
+
+    std::cout << "Printing..." << std::endl;
+    // Now, print that puppy out.
+    std::ofstream out;
+    out.open("GPU_RESULT.ppm", std::fstream::out);
+
+    out << "P3\n" << d_c->Nx << " " << d_c->Ny << "\n255\n";
+    for (int y = d_c->Ny; y > 0; y--) {
+        for (int x = d_c->Nx; x > 0; x--) {
+            out << d_c->rayScreen[y * Nx + x].getR() << " " <<
+                   d_c->rayScreen[y * Nx + x].getG() << " " <<
+                   d_c->rayScreen[y * Nx + x].getB() << "\n";
+        }
+    }
+
+    std::cout << "GPU RayTracing done!" << std::endl;
+
+    // Free all the things.
+    free(c);
+    free(d_c);
+    cudaFree(d_lookFrom);
+
+    // Thrust vectors automatically freed upon returning.
+    return 0;
 }

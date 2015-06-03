@@ -5,6 +5,8 @@
 #include "matrix.h"
 #include <vector>
 #include <cuda_runtime.h>
+#include <cuda.h>
+#include <thrust/device_vector.h>
 
 class Superquadric {
     private:
@@ -47,14 +49,18 @@ class Superquadric {
         // Basic raytracing functions
         __host__ __device__ float   get_initial_guess(Ray);
         __host__ __device__ float   get_intersection(Ray);
-        __host__ __device__ void    rayTrace(Ray&, Point * lookFrom,
+        void    rayTrace(Ray&, Point * lookFrom,
                          std::vector<pointLight>,
                          std::vector<Superquadric>);
 
         // Light modeling functions 
-        __host__ __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
-                         std::vector<pointLight>,
-                         std::vector<Superquadric>);
+        __host__ Point * lighting(Point * p, Point * n, Point * lookFrom,
+                         std::vector<pointLight> lights,
+                         std::vector<Superquadric> scene);
+
+        __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
+                         thrust::device_vector<pointLight> lights,
+                         thrust::device_vector<Superquadric> scene);
 
         bool    checkShadow(Point *, pointLight, std::vector<Superquadric>);
 

@@ -2,6 +2,7 @@
 #define POINT_H
 
 #include <cuda_runtime.h>
+#include <cuda.h>
 #include <iostream>
 #include <cmath>
 

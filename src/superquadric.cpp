@@ -334,7 +334,7 @@ void Superquadric::rayTrace(Ray &r, Point * lookFrom,
 // LIGHT MODELING FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////
 // Lighting contribution algorithm: Phong's
-__host__ __device__
+__host__
 Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
                                std::vector<pointLight> lights,
                                std::vector<Superquadric> scene)
@@ -387,6 +387,59 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
     //std::cout << result;
     return result;
 } 
+
+__device__ 
+Point * lighting(Point * p, Point * n, Point * lookFrom,
+                 thrust::device_vector<pointLight> lights,
+                 thrust::device_vector<Superquadric> scene) {
+    Point * difSum = new Point(0, 0, 0);
+    Point * speSum = new Point(0, 0, 0);
+    Point * reflLight = new Point(0, 0, 0);
+    Point * refrLight = new Point(0, 0, 0);
+    
+    // Direction from point to source (Usually camera)
+    Point * eDir = (*lookFrom - *p)->norm();
+
+    for (int i = 0; i < lights.size(); i++)
+    {
+        bool shadow = this->checkShadow(p, lights[i], scene);
+
+        if (!shadow)
+        {
+            // Solve for attenuation term
+            Point * lP  = lights[i].getPos();
+            Point * lC  = lights[i].getColor();
+            float att_k = lights[i].getAtt_k();
+
+            //std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
+
+            Point * lDir = (*lP - *p)->norm();
+            float lightDist = lP->dist(p); 
+
+            float atten = 1 / (float) (1 + (att_k * lightDist * lightDist));
+
+            // Add diffusion factor to sum
+            float nDotl = n->dot(lDir);
+            Point * lDif = *lC * (atten * ((0 < nDotl) ? nDotl : 0));
+            *difSum += *lDif;
+
+            // Add specular factor to sum
+            Point *dirDif = (*eDir + *lDir)->norm();
+            float nDotDir = n->dot(dirDif);
+            Point * lSpe  = *lC * (atten * pow(((0 < nDotDir && 0 < nDotl) ? nDotDir : 0), shine));
+            *speSum += *lSpe;
+        }
+    }
+    
+    Point * min = new Point(255, 255, 255);
+    Point * result =  min->cwiseMin(*(*(*difSum / 255) * this->diffuse) +
+                                    *(*(*speSum / 255) * this->specular));
+    //std::cout << "Normal v:  " << n;
+    //std::cout << "Diffusion: " << *difSum * this->diffuse;
+    //std::cout << "Specular:  " << *speSum * this->specular;
+    //std::cout << result;
+    return result;
+}
 
 // Check if the path from the light source to the point is interrupted
 bool Superquadric::checkShadow(Point *p, pointLight l,

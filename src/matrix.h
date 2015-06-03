@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include <cuda_runtime.h>
+#include <cuda.h>
 #include <iostream>
 #include <cstdlib>
 #include "point.h"
