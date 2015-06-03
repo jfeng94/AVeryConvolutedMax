@@ -60,7 +60,7 @@ void cudaRayTrace(Superquadric object,
         transR.setDir(dir);
 
         // Check for intersection
-        float intersects = get_intersection(transR);
+        float intersects = object.get_intersection(transR);
 
         // If there is an intersection
         if (intersects != lFLT_MAX && intersects < r.getTime()) {
