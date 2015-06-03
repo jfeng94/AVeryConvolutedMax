@@ -35,6 +35,7 @@ Camera::Camera(Point * LookFrom, Point * LookAt, Point * Up,
     this->init();
 }
 
+
 void Camera::init()
 {
     // Solve for film height
@@ -147,3 +148,16 @@ void Camera::printImage()
     }
 }
 
+void Camera::gpuPrintImage() {
+    std::ofstream out;
+    out.open("GPU_RESULT.ppm", std::fstream::out);
+
+    out << "P3\n" << this->Nx << " " << this->Ny << "\n255\n";
+    for (int y = this->Ny; y > 0; y--) {
+        for (int x = this->Nx; x > 0; x--) {
+            out << this->rayScreen[y * Nx + x].getR() << " " <<
+                   this->rayScreen[y * Nx + x].getG() << " " <<
+                   this->rayScreen[y * Nx + x].getB() << "\n";
+        }
+    }
+}
