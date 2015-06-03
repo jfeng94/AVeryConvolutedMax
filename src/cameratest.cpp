@@ -162,17 +162,7 @@ int main(int argc, char ** argv)
 
     std::cout << "Printing..." << std::endl;
     // Now, print that puppy out.
-    std::ofstream out;
-    out.open("GPU_RESULT.ppm", std::fstream::out);
-
-    out << "P3\n" << d_c->Nx << " " << d_c->Ny << "\n255\n";
-    for (int y = d_c->Ny; y > 0; y--) {
-        for (int x = d_c->Nx; x > 0; x--) {
-            out << d_c->rayScreen[y * Nx + x].getR() << " " <<
-                   d_c->rayScreen[y * Nx + x].getG() << " " <<
-                   d_c->rayScreen[y * Nx + x].getB() << "\n";
-        }
-    }
+    d_c->gpuPrintImage();
 
     std::cout << "GPU RayTracing done!" << std::endl;
 
