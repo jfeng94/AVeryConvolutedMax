@@ -1,6 +1,8 @@
 #ifndef CUDA_RAYTRACE_CUH
 #define CUDA_RAYTRACE_CUH
-
+#include <thrust/device_vector.h>
+#include "superquadric.cuh"
+#include "point.cuh"
 
 void cudaCallScenePrep(thrust::device_vector<Superquadric> scene, int size,
                        int blocks, int threadsPerBlock);

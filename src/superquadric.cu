@@ -98,19 +98,21 @@ Point * Superquadric::revertDirTransforms(Point * p)
 // SUPERQUADRIC FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////
 // Check if a given point is inside or outside of the 
+__host__ __device__
 float Superquadric::isq(Point *p)
 {
     Point * transP = p;
     //Point * transP = this->applyTransforms(p);
     //std::cout << "ISQ --\n" << p;
     //std::cout << transP;
-    return pow(pow(transP->X() * transP->X(), (double) 1 / e) +
-               pow(transP->Y() * transP->Y(), (double) 1 / e),
+    return powf(powf(transP->X() * transP->X(), (double) 1 / e) +
+               powf(transP->Y() * transP->Y(), (double) 1 / e),
                e / n) +
-           pow(transP->Z() * transP->Z(), (double) 1 / n) - 1;
+           powf(transP->Z() * transP->Z(), (double) 1 / n) - 1;
 }
 
 // Get the derivative at a point emanating from a ray.
+__host__ __device__ 
 float Superquadric::isq_prime(Point *p, Ray r)
 {
     Point * g = this->isq_g(p);;
@@ -119,6 +121,7 @@ float Superquadric::isq_prime(Point *p, Ray r)
 }
 
 // Get the gradient vector of the superquadric
+__host__ __device__
 Point * Superquadric::isq_g(Point * p)
 {
     float x, y, z, gx, gy, gz;
@@ -137,18 +140,18 @@ Point * Superquadric::isq_g(Point * p)
     {
         //std::cout << "e is 0!\n";
         gx = gy = FLT_MAX;
-        gz = (2 * z * pow(pow(z, 2), ((double) 1 / n) - 1)) / (double) n;
+        gz = (2 * z * powf(powf(z, 2), ((double) 1 / n) - 1)) / (double) n;
     }
     else
     {
-        float xterm  = pow(x * x, (double) 1 / e);
-        float yterm  = pow(y * y, (double) 1 / e);
-        float xyterm = pow(xterm + yterm, ((double) e /n ) - 1);
-        float x2term = (2 * x * pow(x * x, ((double) 1 / e) - 1));
-        float y2term = (2 * y * pow(y * y, ((double) 1 / e) - 1));
+        float xterm  = powf(x * x, (double) 1 / e);
+        float yterm  = powf(y * y, (double) 1 / e);
+        float xyterm = powf(xterm + yterm, ((double) e /n ) - 1);
+        float x2term = (2 * x * powf(x * x, ((double) 1 / e) - 1));
+        float y2term = (2 * y * powf(y * y, ((double) 1 / e) - 1));
         gx           = x2term * xyterm / (double) n;
         gy           = y2term * xyterm / (double) n;
-        gz           = (2 * z * pow(z * z, ((double) 1 / n) - 1)) / (double) n;
+        gz           = (2 * z * powf(z * z, ((double) 1 / n) - 1)) / (double) n;
     }
 
     return new Point(gx, gy, gz);
@@ -211,8 +214,8 @@ float Superquadric::get_intersection(Ray r)
     bool done;
     float g, g_prime;
 
-    std::ofstream out;
-    out.open("MatlabTools/TestRay.txt", std::fstream::app);
+    //std::ofstream out;
+    //out.open("MatlabTools/TestRay.txt", std::fstream::app);
     
     // Get the time to propagate to the bounding sphere
     t_old = this->get_initial_guess(r);
@@ -234,7 +237,7 @@ float Superquadric::get_intersection(Ray r)
     {
         iterations++;
 
-        out << intersect;
+        //out << intersect;
         // Update t_old
         t_old = t_new;
         g       = this->isq(intersect);
@@ -247,7 +250,7 @@ float Superquadric::get_intersection(Ray r)
         {
             //std::cout << "Case 1\n";
             done = true;
-            out << intersect;
+            //out << intersect;
             return t_old;
         }
         // g'(x) = 0 but g not close to 0. No intersection.
@@ -266,7 +269,7 @@ float Superquadric::get_intersection(Ray r)
         {
             //std::cout << "Case 4\n";
             done = true;
-            out << intersect;
+            //out << intersect;
             return t_old;
         }
 
@@ -279,7 +282,7 @@ float Superquadric::get_intersection(Ray r)
 
     //std::cout << "Case 5\n";
     // Return found time
-    out << intersect;
+    //out << intersect;
     return t_new;
 }
 
@@ -387,7 +390,7 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
     return result;
 } 
 
-__device__ 
+__host__ __device__ 
 Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
                  thrust::device_vector<pointLight> lights,
                  thrust::device_vector<Superquadric> scene) {
@@ -400,7 +403,7 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
     Point * eDir = (*lookFrom - *p)->norm();
 
     // Setting a starting pointer for the device vector.
-    pointLight* start = thrust::raw_pointer_cast(&lights[0]);
+    pointLight* start = thrust::raw_pointer_cast(lights.data());
 
     for (int i = 0; i < lights.size(); i++)
     {
@@ -410,9 +413,9 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
         if (!shadow)
         {
             // Solve for attenuation term
-            Point * lP  = *(start + i).getPos();
-            Point * lC  = *(start + i).getColor();
-            float att_k = *(start + i).getAtt_k();
+            Point * lP  = (*(start + i)).getPos();
+            Point * lC  = (*(start + i)).getColor();
+            float att_k = (*(start + i)).getAtt_k();
 
             //std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
 
@@ -448,7 +451,7 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
 bool Superquadric::checkShadow(Point *p, pointLight l,
                                std::vector<Superquadric> scene)
 {
-    // Shadows not working yet...
+    /* Shadows not working yet...
     return false;
 
     // Get direction from point to light, create ray
@@ -483,6 +486,6 @@ bool Superquadric::checkShadow(Point *p, pointLight l,
                 return true;
             }
         }
-    }
+    }*/
     return false;
 }

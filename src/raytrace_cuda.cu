@@ -3,13 +3,13 @@
 #include "raytrace_cuda.cuh"
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
-#include "superquadric.h"
-#include "point.h"
-#include "matrix.h"
+#include "superquadric.cuh"
+#include "point.cuh"
+#include "matrix.cuh"
 #include "camera.h"
 #include <iostream>
 #include <math.h>
-
+#include <float.h>
 
 // This kernel will parallelize the scene preparation
 __global__
@@ -18,7 +18,7 @@ void cudaScenePrep(Superquadric * start, int size) {
 
     // Thread Resiliency
     while (index < size) {
-        *(start + index).setNum(index);
+        (*(start + index)).setNum(index);
         index += blockDim.x * gridDim.x;
     }
     // Syncing threads so that they all finish.
@@ -63,9 +63,9 @@ void cudaRayTrace(Superquadric object,
         float intersects = object.get_intersection(transR);
 
         // If there is an intersection
-        if (intersects != lFLT_MAX && intersects < r.getTime()) {
+        if (intersects != FLT_MAX && intersects < targetRay.getTime()) {
             // Calculate the intersection point
-            Point * pTran = transR.propogate(intersects);
+            Point * pTran = transR.propagate(intersects);
             Point * pTrue = object.revertTransforms(pTran);
 
             // Get the normal at the intersection point
@@ -73,9 +73,9 @@ void cudaRayTrace(Superquadric object,
 
             Point *showNorm = *pTran + *(*n / 10);
 
-            Point * color = lighting(pTrue, n, lookFrom, lights, scene);
+            Point * color = object.lighting(pTrue, n, lookFrom, lights, scene);
 
-            r.SetColor(color->X(), color->Y(), color->Z());
+            targetRay.setColor(color->X(), color->Y(), color->Z());
         }
         index += blockDim.x * gridDim.x;
     }
