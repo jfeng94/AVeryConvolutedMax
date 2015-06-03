@@ -5,6 +5,8 @@
 #include "superquadric.h"
 #include "matrix.h"
 #include <vector>
+#include <cuda_runtime.h>
+
 
 // TODO When ready, add Thrust library, convert vector to thrust vectors
 class Camera
@@ -24,10 +26,10 @@ class Camera
         // Camera constructor
         //     LookFrom LookAt   Fd     Fx     Nx     Ny
         Camera(Point *, Point *, Point *, float, float, float, float);
-        void runRayTracer(std::vector<Superquadric>, std::vector<pointLight>);
+        __host__ __device__ void runRayTracer(std::vector<Superquadric>, std::vector<pointLight>);
 
-        void scenePrep(std::vector<Superquadric>);
-        void printImage();
+        __host__ __device__ void scenePrep(std::vector<Superquadric>);
+        __host__ __device__ void printImage();
 };
 
 #endif
