@@ -1,6 +1,7 @@
 #ifndef POINT_H
 #define POINT_H
 
+#include <cuda_runtime.h>
 #include <iostream>
 #include <cmath>
 
@@ -11,25 +12,25 @@ class Point
 
     public:
         // Constructors
-        Point();
-        Point(float, float, float);
+        __host__ __device__ Point();
+        __host__ __device__ Point(float, float, float);
 
         // Accessors
-        float X() {return this->x;} 
-        float Y() {return this->y;} 
-        float Z() {return this->z;} 
+        __host__ __device__ float X() {return this->x;} 
+        __host__ __device__ float Y() {return this->y;} 
+        __host__ __device__ float Z() {return this->z;} 
         
         // Mutators
-        void setX(float X) {this->x = X;}      
-        void setY(float Y) {this->y = Y;}
-        void setZ(float Z) {this->z = Z;}
-        void set(float X, float Y, float Z) 
+        __host__ __device__ void setX(float X) {this->x = X;}      
+        __host__ __device__ void setY(float Y) {this->y = Y;}
+        __host__ __device__ void setZ(float Z) {this->z = Z;}
+        __host__ __device__ void set(float X, float Y, float Z) 
         {
             this->x = X;
             this->y = Y;
             this->z = Z;
         }
-        void set(Point*p)
+        __host__ __device__ void set(Point*p)
         {
             this->x = p->x;
             this->y = p->y;
@@ -37,16 +38,16 @@ class Point
         }
 
         // Other functions
-        Point * norm();
-        float   dot(Point*);
-        Point * cross(Point*);
-        float   dist(Point*);
-        Point * cwiseMin(Point *);
+        __host__ __device__ Point * norm();
+        __host__ __device__ float   dot(Point*);
+        __host__ __device__ Point * cross(Point*);
+        __host__ __device__ float   dist(Point*);
+        __host__ __device__ Point * cwiseMin(Point *);
 
         // Operator overloads
-        Point * operator+ (Point);
-        Point * operator- (Point);
-        Point * operator/ (Point);
+        __host__ __device__ Point * operator+ (Point);
+        __host__ __device__ Point * operator- (Point);
+        __host__ __device__ Point * operator/ (Point);
         Point * operator* (Point);
         Point * operator+=(Point);
         Point * operator-=(Point);
@@ -80,19 +81,19 @@ class Ray : public Point
         Ray(Point*, Point *);
 
         // Mutation functions
-        void setColor(int, int, int);
-        void setStart(Point*);
-        void setDir(Point*);
+        __host__ __device__ void setColor(int, int, int);
+        __host__ __device__ void setStart(Point*);
+        __host__ __device__ void setDir(Point*);
         void setTime(float T) {this->t = T;}
 
         // Accessor functions
         float getR() {return this->R;}
         float getG() {return this->G;}
         float getB() {return this->B;}
-        float getTime() {return this->t;}
-        Point * getStart() {return new Point(this->posx, this->posy, this->posz);}
-        Point * getDir()   {return new Point(this->x, this->y, this->z);}
-        Point * propagate(float);
+        __host__ __device__ float getTime() {return this->t;}
+        __host__ __device__ Point * getStart() {return new Point(this->posx, this->posy, this->posz);}
+        __host__ __device__ Point * getDir()   {return new Point(this->x, this->y, this->z);}
+        __host__ __device__ Point * propagate(float);
 };
 
 // Point light source in 3D coordinates

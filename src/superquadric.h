@@ -4,6 +4,7 @@
 #include "point.h"
 #include "matrix.h"
 #include <vector>
+#include <cuda_runtime.h>
 
 class Superquadric {
     private:
@@ -32,26 +33,26 @@ class Superquadric {
                      Point*, Point*, Point*, float, float, float);
 
         // Point Transformation functions
-        Point * applyTransforms(Point *);
-        Point * applyDirTransforms(Point *);
-        Point * revertTransforms(Point *);
-        Point * revertDirTransforms(Point *);
+        __host__ _device__ Point * applyTransforms(Point *);
+        __host__ __device__ Point * applyDirTransforms(Point *);
+        __host__ __device__ Point * revertTransforms(Point *);
+        __host__ __device__ Point * revertDirTransforms(Point *);
 
         // Superquadric functions
         float   isq(Point *);
         float   isq_prime(Point *, Ray);
         Point * isq_g(Point *);
-        Point * getNormal(Point *);
+        __host__ __device__ Point * getNormal(Point *);
 
         // Basic raytracing functions
-        float   get_initial_guess(Ray);
-        float   get_intersection(Ray);
+        __host__ __device__ float   get_initial_guess(Ray);
+        __host__ __device__ float   get_intersection(Ray);
         void    rayTrace(Ray&, Point * lookFrom,
                          std::vector<pointLight>,
                          std::vector<Superquadric>);
 
         // Light modeling functions 
-        Point * lighting(Point * p, Point * n, Point * lookFrom,
+        __host__ __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
                          std::vector<pointLight>,
                          std::vector<Superquadric>);
 
