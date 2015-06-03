@@ -3,6 +3,7 @@
 #include "point.h"
 
 // Default constructor
+__host__ __device__
 Point::Point()
 {
     this->x = 0;
@@ -11,6 +12,7 @@ Point::Point()
 }
 
 // Normal constructor
+__host__ __device__
 Point::Point(float x, float y, float z)
 {
     this->x = x;
@@ -19,6 +21,7 @@ Point::Point(float x, float y, float z)
 }
 
 // Returns the norm of a point treated like a vector
+__host__ __device__
 Point * Point::norm()
 {
     Point * result = new Point();
@@ -32,12 +35,14 @@ Point * Point::norm()
 }
 
 // Dot product of two points treated like vectors
+__host__ __device__
 float Point::dot(Point *p)
 {
     return this->x * p->x + this->y * p->y + this->z * p->z;
 }
 
 // Cross product of two points treated like vectors
+__host__ __device__
 Point* Point::cross(Point * p)
 {
     Point * result = new Point(this->y * p->z - this->z * p->y,
@@ -48,6 +53,7 @@ Point* Point::cross(Point * p)
 }
 
 // Calculates the Euclidean distance between 2 points
+__host__ __device__
 float Point::dist(Point * p)
 {
     float dx = p->x - this->x;
@@ -57,6 +63,7 @@ float Point::dist(Point * p)
     return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
+__host__ __device__
 Point * Point::cwiseMin(Point *p)
 {
     float minx, miny, minz;
@@ -68,6 +75,7 @@ Point * Point::cwiseMin(Point *p)
 }
 
 // OPERATOR OVERLOADS
+__host__ __device__
 Point * Point::operator+(Point p)
 {
     Point * result = new Point(this->x + p.x,
@@ -76,6 +84,7 @@ Point * Point::operator+(Point p)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator-(Point p)
 {
     Point * result = new Point(this->x - p.x,
@@ -84,6 +93,7 @@ Point * Point::operator-(Point p)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator*(Point p)
 {
     Point * result = new Point(this->x * p.x,
@@ -92,6 +102,7 @@ Point * Point::operator*(Point p)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator/(Point p)
 {
     Point * result = new Point(this->x / p.x,
@@ -100,6 +111,7 @@ Point * Point::operator/(Point p)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator+=(Point p)
 {
     this->x += p.x;
@@ -109,6 +121,7 @@ Point * Point::operator+=(Point p)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator-=(Point p)
 {
     this->x -= p.x;
@@ -118,6 +131,7 @@ Point * Point::operator-=(Point p)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator*=(Point p)
 {
     this->x *= p.x;
@@ -127,6 +141,7 @@ Point * Point::operator*=(Point p)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator/=(Point p)
 {
     this->x /= p.x;
@@ -136,6 +151,7 @@ Point * Point::operator/=(Point p)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator+(float f)
 {
     Point * result = new Point(this->x + f,
@@ -144,6 +160,7 @@ Point * Point::operator+(float f)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator-(float f)
 {
     Point * result = new Point(this->x - f,
@@ -152,6 +169,7 @@ Point * Point::operator-(float f)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator*(float f)
 {
     Point * result = new Point(this->x * f,
@@ -160,6 +178,7 @@ Point * Point::operator*(float f)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator/(float f)
 {
     Point * result = new Point(this->x / f,
@@ -168,6 +187,7 @@ Point * Point::operator/(float f)
     return result;
 }
 
+__host__ __device__
 Point * Point::operator+=(float f)
 {
     this->x += f;
@@ -177,6 +197,7 @@ Point * Point::operator+=(float f)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator-=(float f)
 {
     this->x -= f;
@@ -185,6 +206,7 @@ Point * Point::operator-=(float f)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator*=(float f)
 {
     this->x *= f;
@@ -193,6 +215,7 @@ Point * Point::operator*=(float f)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator/=(float f)
 {
     this->x /= f;
@@ -201,6 +224,7 @@ Point * Point::operator/=(float f)
     return this;
 }
 
+__host__ __device__
 Point * Point::operator=(Point p)
 {
     this->x = p.x;
@@ -209,6 +233,7 @@ Point * Point::operator=(Point p)
     return this;
 }
 
+__host__ __device__
 bool Point::operator==(Point p)
 {
     if (this->x == p.x && this->y == p.y && this->z == p.z)
@@ -221,6 +246,7 @@ bool Point::operator==(Point p)
 
 
 // Stream output operator
+__host__ __device__
 std::ostream& operator<<(std::ostream &out, Point *p)
 {
     out << p->x << "\t" << p->y << "\t" << p->z << "\n";
@@ -230,6 +256,7 @@ std::ostream& operator<<(std::ostream &out, Point *p)
 /******************************************************************************/
 /*                           Methods for Ray Class                            */
 /******************************************************************************/
+__host__ __device__
 Ray::Ray()
 {
     // Default direction
@@ -247,6 +274,7 @@ Ray::Ray()
     this->t = FLT_MAX;
 }
 
+__host__ __device__
 Ray::Ray(float X, float Y, float Z, float dX, float dY, float dZ)
 {
     this->x = dX;
@@ -261,6 +289,7 @@ Ray::Ray(float X, float Y, float Z, float dX, float dY, float dZ)
     this->t = FLT_MAX;
 }
 
+__host__ __device__
 Ray::Ray(Point* dp, Point *p)
 {
     this->x = dp->X();
@@ -275,6 +304,7 @@ Ray::Ray(Point* dp, Point *p)
     this->t = FLT_MAX;
 }
 
+__host__ __device__
 void Ray::setColor(int r, int g, int b)
 {
     this->R = r;
@@ -282,6 +312,7 @@ void Ray::setColor(int r, int g, int b)
     this->B = b;
 }
 
+__host__ __device__
 void Ray::setDir(Point *p)
 {
     this->x = p->X();
@@ -289,6 +320,7 @@ void Ray::setDir(Point *p)
     this->z = p->Z();
 }
 
+__host__ __device__
 void Ray::setStart(Point *p)
 {
     this->posx = p->X();
@@ -296,6 +328,7 @@ void Ray::setStart(Point *p)
     this->posz = p->Z();
 }
 
+__host__ __device__
 Point * Ray::propagate(float time)
 {
     return new Point(this->x * time + this->posx,
@@ -307,6 +340,7 @@ Point * Ray::propagate(float time)
 ///////////////////////////////////////////////////////////////////////////////
 // Point Light operations
 ///////////////////////////////////////////////////////////////////////////////
+__host__ __device__
 pointLight::pointLight()
 {
     this->setPos(5, 5, 5);
@@ -314,6 +348,7 @@ pointLight::pointLight()
     this->setAtt_k(0.0005);
 }
 
+__host__ __device__
 pointLight::pointLight(float X, float Y, float Z,
                        int r, int g, int b, float att_k)
 {
@@ -322,6 +357,7 @@ pointLight::pointLight(float X, float Y, float Z,
     this->setAtt_k(att_k);
 }
 
+__host__ __device__
 pointLight::pointLight(Point * p, int r, int g, int b, float att_k)
 {
     this->setPos(p);
@@ -329,6 +365,7 @@ pointLight::pointLight(Point * p, int r, int g, int b, float att_k)
     this->setAtt_k(att_k);
 }
 
+__host__ __device__
 void pointLight::setColor(int r, int g, int b)
 {
     this->R = r;
@@ -336,26 +373,31 @@ void pointLight::setColor(int r, int g, int b)
     this->B = b;
 }
 
+__host__ __device__
 Point * pointLight::getColor()
 {
     return new Point(this->R, this->G, this->B);
 }
 
+__host__ __device__
 void pointLight::setAtt_k(float att_k)
 {
     this->attenuation_k = att_k;
 }
 
+__host__ __device__
 float pointLight::getAtt_k()
 {
     return this->attenuation_k;
 }
 
+__host__ __device__
 void pointLight::setPos(Point *p)
 {
     this->setPos(p->X(), p->Y(), p->Z());
 }
 
+__host__ __device__
 void pointLight::setPos(float X, float Y, float Z)
 {
     this->x = X;
@@ -363,6 +405,7 @@ void pointLight::setPos(float X, float Y, float Z)
     this->z = Z;
 }
 
+__host__ __device__
 Point * pointLight::getPos()
 {
     return new Point(this->x, this->y, this->z);

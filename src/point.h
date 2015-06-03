@@ -48,24 +48,24 @@ class Point
         __host__ __device__ Point * operator+ (Point);
         __host__ __device__ Point * operator- (Point);
         __host__ __device__ Point * operator/ (Point);
-        Point * operator* (Point);
-        Point * operator+=(Point);
-        Point * operator-=(Point);
-        Point * operator/=(Point);
-        Point * operator*=(Point);
-        Point * operator= (Point);
-        bool    operator==(Point);
+        __host__ __device__ Point * operator* (Point);
+        __host__ __device__ Point * operator+=(Point);
+        __host__ __device__ Point * operator-=(Point);
+        __host__ __device__ Point * operator/=(Point);
+        __host__ __device__ Point * operator*=(Point);
+        __host__ __device__ Point * operator= (Point);
+        __host__ __device__ bool    operator==(Point);
 
-        Point * operator+ (float);
-        Point * operator- (float);
-        Point * operator/ (float);
-        Point * operator* (float);
-        Point * operator+=(float);
-        Point * operator-=(float);
-        Point * operator/=(float);
-        Point * operator*=(float);
+        __host__ __device__ Point * operator+ (float);
+        __host__ __device__ Point * operator- (float);
+        __host__ __device__ Point * operator/ (float);
+        __host__ __device__ Point * operator* (float);
+        __host__ __device__ Point * operator+=(float);
+        __host__ __device__ Point * operator-=(float);
+        __host__ __device__ Point * operator/=(float);
+        __host__ __device__ Point * operator*=(float);
         
-        friend std::ostream& operator<< (std::ostream&, Point *);
+        __host__ __device__ friend std::ostream& operator<< (std::ostream&, Point *);
 };
 
 // 3D ray class that inherits from point.
@@ -76,20 +76,20 @@ class Ray : public Point
         int R, G, B; // Returned color value
         float t;     // time to closest object
     public:
-        Ray();
-        Ray(float, float, float, float, float, float);
-        Ray(Point*, Point *);
+        __host__ __device__ Ray();
+        __host__ __device__ Ray(float, float, float, float, float, float);
+        __host__ __device__ Ray(Point*, Point *);
 
         // Mutation functions
         __host__ __device__ void setColor(int, int, int);
         __host__ __device__ void setStart(Point*);
         __host__ __device__ void setDir(Point*);
-        void setTime(float T) {this->t = T;}
+        __host__ __device__ void setTime(float T) {this->t = T;}
 
         // Accessor functions
-        float getR() {return this->R;}
-        float getG() {return this->G;}
-        float getB() {return this->B;}
+        __host__ __device__ float getR() {return this->R;}
+        __host__ __device__ float getG() {return this->G;}
+        __host__ __device__ float getB() {return this->B;}
         __host__ __device__ float getTime() {return this->t;}
         __host__ __device__ Point * getStart() {return new Point(this->posx, this->posy, this->posz);}
         __host__ __device__ Point * getDir()   {return new Point(this->x, this->y, this->z);}
@@ -104,17 +104,17 @@ class pointLight : public Point
         float attenuation_k;
 
     public:
-        pointLight();
-        pointLight(float, float, float, int, int, int, float);
-        pointLight(Point *, int, int, int, float);
+        __host__ __device__ pointLight();
+        __host__ __device__ pointLight(float, float, float, int, int, int, float);
+        __host__ __device__ pointLight(Point *, int, int, int, float);
 
-        void    setColor(int, int, int);
-        Point * getColor();
-        void    setAtt_k(float);
-        float   getAtt_k();
-        void    setPos(Point *p);
-        void    setPos(float, float, float);
-        Point * getPos();
+        __host__ __device__ void    setColor(int, int, int);
+        __host__ __device__ Point * getColor();
+        __host__ __device__ void    setAtt_k(float);
+        __host__ __device__ float   getAtt_k();
+        __host__ __device__ void    setPos(Point *p);
+        __host__ __device__ void    setPos(float, float, float);
+        __host__ __device__ Point * getPos();
 
 };
 #endif

@@ -1,6 +1,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <cuda_runtime.h>
 #include <iostream>
 #include <cstdlib>
 #include "point.h"
@@ -28,8 +29,8 @@ class rotMat : public Matrix
 
         void setTheta(float t) {this->theta = t;}
 
-        Point *   apply(Point *);
-        Point * unapply(Point *);
+        __host__ __device__ Point *   apply(Point *);
+        __host__ __device__ Point * unapply(Point *);
 
 };
 
@@ -41,8 +42,8 @@ class scaMat : public Matrix
         scaMat(float, float, float);
         scaMat(Point*);
 
-        Point *   apply(Point *);
-        Point * unapply(Point *);
+        __host__ __device__ Point *   apply(Point *);
+        __host__ __device__ Point * unapply(Point *);
 };
 
 // Translation matrix
@@ -53,7 +54,7 @@ class traMat : public Matrix
         traMat(float, float, float);
         traMat(Point *);
 
-        Point *   apply(Point *);
-        Point * unapply(Point *);
+        __host__ __device__ Point *   apply(Point *);
+        __host__ __device__ Point * unapply(Point *);
 };
 #endif

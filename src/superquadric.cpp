@@ -70,21 +70,25 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
 ///////////////////////////////////////////////////////////////////////////////
 // POINT TRANSFORMATION FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////
+__host__ __device__
 Point * Superquadric::applyTransforms(Point * p)
 {
     return this->s.unapply(this->r.unapply(this->t.unapply(p)));
 }
 
+__host__ __device__
 Point * Superquadric::applyDirTransforms(Point *p)
 {
     return this->s.unapply(this->r.unapply(p));
 }
 
+__host__ __device__
 Point * Superquadric::revertTransforms(Point * p)
 {
     return this->t.apply(this->r.apply(this->s.apply(p)));
 }
 
+__host__ __device__
 Point * Superquadric::revertDirTransforms(Point * p)
 {
     return this->r.apply(this->s.apply(p));
@@ -151,6 +155,7 @@ Point * Superquadric::isq_g(Point * p)
 }
 
 // Return the normal vector of the surface at a point p
+__host__ __device__
 Point * Superquadric::getNormal(Point * p)
 {
     float norm, x, y, z;
@@ -165,6 +170,7 @@ Point * Superquadric::getNormal(Point * p)
 // CORE RAY TRACING FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////
 // Function to get initial time guess
+__host__ __device__
 float Superquadric::get_initial_guess(Ray r)
 {
     float a, b, c, discriminant;
@@ -198,6 +204,7 @@ float Superquadric::get_initial_guess(Ray r)
 // Function takes a ray from the camera, and finds an intersection point
 // with the object. If an intersection is found, the color field of the 
 // ray is updated.
+__host__ __device__
 float Superquadric::get_intersection(Ray r)
 {
     float t_old, t_new;
@@ -276,6 +283,7 @@ float Superquadric::get_intersection(Ray r)
     return t_new;
 }
 
+__host__ __device__
 void Superquadric::rayTrace(Ray &r, Point * lookFrom,
                             std::vector<pointLight> lights,
                             std::vector<Superquadric> scene)
@@ -326,6 +334,7 @@ void Superquadric::rayTrace(Ray &r, Point * lookFrom,
 // LIGHT MODELING FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////
 // Lighting contribution algorithm: Phong's
+__host__ __device__
 Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
                                std::vector<pointLight> lights,
                                std::vector<Superquadric> scene)

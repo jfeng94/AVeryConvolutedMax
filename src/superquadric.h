@@ -33,7 +33,7 @@ class Superquadric {
                      Point*, Point*, Point*, float, float, float);
 
         // Point Transformation functions
-        __host__ _device__ Point * applyTransforms(Point *);
+        __host__ __device__ Point * applyTransforms(Point *);
         __host__ __device__ Point * applyDirTransforms(Point *);
         __host__ __device__ Point * revertTransforms(Point *);
         __host__ __device__ Point * revertDirTransforms(Point *);
@@ -47,7 +47,7 @@ class Superquadric {
         // Basic raytracing functions
         __host__ __device__ float   get_initial_guess(Ray);
         __host__ __device__ float   get_intersection(Ray);
-        void    rayTrace(Ray&, Point * lookFrom,
+        __host__ __device__ void    rayTrace(Ray&, Point * lookFrom,
                          std::vector<pointLight>,
                          std::vector<Superquadric>);
 
@@ -59,7 +59,7 @@ class Superquadric {
         bool    checkShadow(Point *, pointLight, std::vector<Superquadric>);
 
         // Handle indexing
-        void setNum(int i) {this->obj_num = i;}
+        __host__ __device__ void setNum(int i) {this->obj_num = i;}
 };
 
 

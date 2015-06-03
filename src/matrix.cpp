@@ -40,6 +40,7 @@ rotMat::rotMat(Point *p, float t)
     this->theta = t;
 }
 
+__host__ __device__
 Point * rotMat::apply(Point * p)
 {
     float r1  = this->xyz.X();
@@ -70,6 +71,7 @@ Point * rotMat::apply(Point * p)
     return result;
 }
 
+__host__ __device__
 Point * rotMat::unapply(Point * p)
 {
     float r1  = this->xyz.X();
@@ -120,6 +122,8 @@ scaMat::scaMat(Point * p)
 {
     this->xyz = *p;
 }
+
+__host__ __device__
 Point * scaMat::apply(Point * p)
 {
     float new_x = p->X() * this->xyz.X();
@@ -128,6 +132,7 @@ Point * scaMat::apply(Point * p)
     return new Point(new_x, new_y, new_z);;
 }
 
+__host__ __device__
 Point * scaMat::unapply(Point * p)
 {
     float new_x = p->X() / this->xyz.X();
@@ -153,6 +158,8 @@ traMat::traMat(Point * p)
 {
     this->xyz = *p;
 }
+
+__host__ __device__
 Point * traMat::apply(Point * p)
 {
     float new_x = p->X() + this->xyz.X();
@@ -161,6 +168,7 @@ Point * traMat::apply(Point * p)
     return new Point(new_x, new_y, new_z);;
 }
 
+__host__ __device__
 Point * traMat::unapply(Point * p)
 {
     float new_x = p->X() - this->xyz.X();
