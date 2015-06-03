@@ -66,7 +66,7 @@ class Point
         __host__ __device__ Point * operator/=(float);
         __host__ __device__ Point * operator*=(float);
         
-        __host__ __device__ friend std::ostream& operator<< (std::ostream&, Point *);
+        __host__ friend std::ostream& operator<< (std::ostream&, Point *);
 };
 
 // 3D ray class that inherits from point.

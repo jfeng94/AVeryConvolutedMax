@@ -58,4 +58,7 @@ cameratest.o: cameratest.cu
 	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c cameratest.cu 
 
 raytrace: cameratest.o matrix.o superquadric.o point.o camera.o raytrace.o
-	$(NVCC) $(GENCODE_FLAGS) $(NVCCFLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) cameratest.o matrix.o superquadric.o point.o camera.o raytrace.o -o cameratest
+	$(NVCC) $(GENCODE_FLAGS) $(NVCCFLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) cameratest.o matrix.o superquadric.o point.o camera.o raytrace_cuda.o -o cameratest
+
+clean:
+	rm -f *.o cameratest 

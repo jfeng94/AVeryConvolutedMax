@@ -246,7 +246,7 @@ bool Point::operator==(Point p)
 
 
 // Stream output operator
-__host__ __device__
+__host__
 std::ostream& operator<<(std::ostream &out, Point *p)
 {
     out << p->x << "\t" << p->y << "\t" << p->z << "\n";
