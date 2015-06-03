@@ -9,7 +9,6 @@
 #include <thrust/host_vector.h>
 #include "raytrace_cuda.cuh"
 #include <iostream>
-#include <string>
 
 int main(int argc, char ** argv)
 {
@@ -108,10 +107,10 @@ int main(int argc, char ** argv)
 
     std::cout << "Preparing for GPU Raytracing..." << std::endl;
     // First, get number of blocks
-    int blocks = stoi(argv[1]);
+    int blocks = atoi(argv[1]);
 
     // Then, threadsPerBlock
-    int threadsPerBlock = stoid(argv[2]);
+    int threadsPerBlock = atoi(argv[2]);
 
     // Create a new camera with the same things as above.
     Camera * d_c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
