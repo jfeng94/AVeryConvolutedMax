@@ -1,6 +1,6 @@
-#include "superquadric.h"
-#include "point.h"
-#include "matrix.h"
+#include "superquadric.cuh"
+#include "point.cuh"
+#include "matrix.cuh"
 #include "camera.h"
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -119,8 +119,10 @@ int main(int argc, char ** argv)
     thrust::device_vector<Superquadric> d_scene(scene.begin(), scene.end());
     thrust::device_vector<pointLight> d_lights(lights.begin(), lights.end());
 
+
     // Create a device_vector based on the screen from the camera.
-    thrust::device_vector<Ray> d_screen(d_c->rayScreen.begin(), d_c->rayScreen.end());
+    std::vector<Ray> camScreen = d_c->getRayScreen();
+    thrust::device_vector<Ray> d_screen(camScreen.begin(), camScreen.end());
 
     // Get size values for the thread resiliency...
     int d_scene_size = d_scene.size();
@@ -133,17 +135,19 @@ int main(int argc, char ** argv)
     // Running the Ray Tracer...
 
     // Adding an eye light
-    pointLight *d_l = new pointLight(this->LookFrom.X(),
-                                     this->LookFrom.Y(),
-                                     this->LookFrom.Z(),
+    pointLight *d_l = new pointLight(LookFrom->X(),
+                                     LookFrom->Y(),
+                                     LookFrom->Z(),
                                      255, 255, 255, 1);
     d_lights.push_back(*d_l);
 
     std::cout << "Raytracing..." << std::endl;
     // Allocate space for the point on the GPU
     Point * d_lookFrom;
+    Point cLookFrom = d_c->getLookFrom();
     cudaMalloc(&d_lookFrom, sizeof(Point));
-    cudaMemcpy(d_lookFrom, &d_c->LookFrom, sizeof(Point), cudaMemcpyHostToDevice);
+    
+    cudaMemcpy(d_lookFrom, &cLookFrom, sizeof(Point), cudaMemcpyHostToDevice);
 
     for(int i = 0; i < d_scene_size; i++) {
         Superquadric object = d_scene[i];
@@ -156,7 +160,7 @@ int main(int argc, char ** argv)
     // screen thrust::vector.
     std::vector<Ray> out_screen;
     thrust::copy(d_screen.begin(), d_screen.end(), out_screen.begin());
-    d_c->rayScreen = out_screen;
+    d_c->setRayScreen(out_screen);
 
 
     std::cout << "Printing..." << std::endl;

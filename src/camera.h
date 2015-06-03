@@ -1,9 +1,9 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "point.h"
-#include "superquadric.h"
-#include "matrix.h"
+#include "point.cuh"
+#include "superquadric.cuh"
+#include "matrix.cuh"
 #include <vector>
 #include <cuda_runtime.h>
 #include <cuda.h>
@@ -31,10 +31,13 @@ class Camera
 
         // Accessor
         std::vector<Ray> getRayScreen();
+	Point getLookFrom();
+	void setRayScreen(std::vector<Ray> screen);
 
         void runRayTracer(std::vector<Superquadric>, std::vector<pointLight>);
         void scenePrep(std::vector<Superquadric>);
         void printImage();
+	void gpuPrintImage();
 };
 
 #endif

@@ -1,6 +1,6 @@
-#include "superquadric.h"
-#include "matrix.h"
-#include "point.h"
+#include "superquadric.cuh"
+#include "matrix.cuh"
+#include "point.cuh"
 
 #include <math.h>
 #include <vector>
@@ -283,7 +283,6 @@ float Superquadric::get_intersection(Ray r)
     return t_new;
 }
 
-__host__ __device__
 void Superquadric::rayTrace(Ray &r, Point * lookFrom,
                             std::vector<pointLight> lights,
                             std::vector<Superquadric> scene)
@@ -389,7 +388,7 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
 } 
 
 __device__ 
-Point * lighting(Point * p, Point * n, Point * lookFrom,
+Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
                  thrust::device_vector<pointLight> lights,
                  thrust::device_vector<Superquadric> scene) {
     Point * difSum = new Point(0, 0, 0);
@@ -402,8 +401,9 @@ Point * lighting(Point * p, Point * n, Point * lookFrom,
 
     for (int i = 0; i < lights.size(); i++)
     {
-        bool shadow = this->checkShadow(p, lights[i], scene);
-
+        //        bool shadow = this->checkShadow(p, lights[i], scene); Shadow's ain't working yet
+        bool shadow = false;
+     
         if (!shadow)
         {
             // Solve for attenuation term

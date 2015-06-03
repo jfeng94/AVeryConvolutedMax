@@ -11,8 +11,7 @@ CUDA_LIB_PATH   ?= $(CUDA_PATH)/lib64
 NVCC            ?= $(CUDA_BIN_PATH)/nvcc
 
 # CUDA code generation flags
-GENCODE_FLAGS   := -gencode arch=compute_20,code=sm_20 -gencode 
-arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35
+GENCODE_FLAGS   := -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35
 
 # OS-specific build flags
 ifneq ($(DARWIN),)
@@ -41,22 +40,22 @@ iotest:
 	$(CC) iotest.cpp -o iotest
 
 raytrace.o: raytrace_cuda.cu
-	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) -c raytrace_cuda.cu
+	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c raytrace_cuda.cu
 
 camera.o: camera.cpp
-	$(CC) -I$(CUDA_INC_PATH) camera.cpp -c
+	$(CC) -I$(CUDA_INC_PATH) -c camera.cpp 
 
-point.o: point.cpp
-	$(CC) -I$(CUDA_INC_PATH) point.cpp -c
+point.o: point.cu
+	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c point.cu
 
-superquadric.o: superquadric.cpp
-	$(CC) -I$(CUDA_INC_PATH) superquadric.cpp -c
+superquadric.o: superquadric.cu
+	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c superquadric.cu 
 
-matrix.o: matrix.cpp
-	$(CC) -I$(CUDA_INC_PATH) matrix.cpp -c
+matrix.o: matrix.cu
+	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c matrix.cu
 
-cameratest.o: cameratest.cpp
-	$(CC) -I$(CUDA_INC_PATH) cameratest.cpp -c
+cameratest.o: cameratest.cu
+	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c cameratest.cu 
 
 raytrace: cameratest.o matrix.o superquadric.o point.o camera.o raytrace.o
 	$(NVCC) $(GENCODE_FLAGS) $(NVCCFLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) cameratest.o matrix.o superquadric.o point.o camera.o raytrace.o -o cameratest

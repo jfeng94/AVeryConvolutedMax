@@ -1,6 +1,6 @@
 #include <float.h>
 #include <cmath>
-#include "point.h"
+#include "point.cuh"
 
 // Default constructor
 __host__ __device__

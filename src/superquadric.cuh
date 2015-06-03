@@ -1,8 +1,8 @@
 #ifndef  SUPERQUADRIC_H
 #define  SUPERQUADRIC_H
 
-#include "point.h"
-#include "matrix.h"
+#include "point.cuh"
+#include "matrix.cuh"
 #include <vector>
 #include <cuda_runtime.h>
 #include <cuda.h>

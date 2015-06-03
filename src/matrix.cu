@@ -1,4 +1,4 @@
-#include "matrix.h"
+#include "matrix.cuh"
 
 void Matrix::set(Point *p)
 {

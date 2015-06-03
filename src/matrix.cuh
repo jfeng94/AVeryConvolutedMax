@@ -5,7 +5,7 @@
 #include <cuda.h>
 #include <iostream>
 #include <cstdlib>
-#include "point.h"
+#include "point.cuh"
 
 // Base matrix class
 class Matrix

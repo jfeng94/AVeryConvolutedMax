@@ -87,6 +87,18 @@ void Camera::init()
     }
 }
 
+std::vector<Ray> Camera::getRayScreen() {
+    return this->rayScreen;
+}
+
+Point Camera::getLookFrom() {
+    return this->LookFrom;
+}
+
+void Camera::setRayScreen(std::vector<Ray> screen) {
+    this->rayScreen = screen;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RAY TRACER! WE NEED TO KERNELIZE THIS!
 ///////////////////////////////////////////////////////////////////////////////
