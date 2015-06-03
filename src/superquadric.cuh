@@ -58,9 +58,11 @@ class Superquadric {
                          std::vector<pointLight> lights,
                          std::vector<Superquadric> scene);
 
-        __host__ __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
-                         thrust::device_vector<pointLight> lights,
-                         thrust::device_vector<Superquadric> scene);
+        __device__ Point * lighting(Point * p, Point * n, Point * lookFrom,
+                         pointLight * lightStart,
+                         Superquadric * sceneStart,
+                         int lightSize,
+                         int sceneSize);
 
         bool    checkShadow(Point *, pointLight, std::vector<Superquadric>);
 

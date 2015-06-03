@@ -39,10 +39,10 @@ void cudaCallScenePrep(thrust::device_vector<Superquadric> scene, int size,
 // This will be parallelized based on the screen.
 __global__
 void cudaRayTrace(Superquadric object,
-                  thrust::device_vector<Superquadric> scene, 
-                  thrust::device_vector<pointLight> lights,
+                  Superquadric * sceneStart, 
+                  pointLight * lightStart,
                   Ray * start,
-                  int size, Point * lookFrom) {
+                  int size, int lightSize, int sceneSize, Point * lookFrom) {
     // Thread resiliency measures.
     unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
     while (index < size) {
@@ -73,7 +73,8 @@ void cudaRayTrace(Superquadric object,
 
             Point *showNorm = *pTran + *(*n / 10);
 
-            Point * color = object.lighting(pTrue, n, lookFrom, lights, scene);
+            Point * color = object.lighting(pTrue, n, lookFrom, lightStart, sceneStart,
+                                            lightSize, sceneSize);
 
             targetRay.setColor(color->X(), color->Y(), color->Z());
         }
@@ -91,8 +92,14 @@ void cudaCallRayTrace(Superquadric object,
                       int threadsPerBlock) {
 
     Ray * start = thrust::raw_pointer_cast(&screen[0]);
+    pointLight * lightStart = thrust::raw_pointer_cast(&lights[0]);
+    Superquadric * sceneStart = thrust::raw_pointer_cast(&scene[0]);
+
+    int lightSize = lights.size();
+    int sceneSize = scene.size();
 
     cudaRayTrace<<<blocks, threadsPerBlock>>>
-                (object, scene, lights, start, size, lookFrom);
+                (object, sceneStart, lightStart, start, size, lightSize,
+                sceneSize, lookFrom);
 }
 
