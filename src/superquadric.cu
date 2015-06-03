@@ -399,6 +399,9 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
     // Direction from point to source (Usually camera)
     Point * eDir = (*lookFrom - *p)->norm();
 
+    // Setting a starting pointer for the device vector.
+    pointLight* start = thrust::raw_pointer_cast(&lights[0]);
+
     for (int i = 0; i < lights.size(); i++)
     {
         //        bool shadow = this->checkShadow(p, lights[i], scene); Shadow's ain't working yet
@@ -407,9 +410,9 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
         if (!shadow)
         {
             // Solve for attenuation term
-            Point * lP  = lights[i].getPos();
-            Point * lC  = lights[i].getColor();
-            float att_k = lights[i].getAtt_k();
+            Point * lP  = *(start + i).getPos();
+            Point * lC  = *(start + i).getColor();
+            float att_k = *(start + i).getAtt_k();
 
             //std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
 

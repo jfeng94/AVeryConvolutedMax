@@ -13,12 +13,12 @@
 
 // This kernel will parallelize the scene preparation
 __global__
-void cudaScenePrep(thrust::device_vector<Superquadric> scene, int size) {
+void cudaScenePrep(Superquadric * start, int size) {
     unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
 
     // Thread Resiliency
     while (index < size) {
-        scene[index].setNum(index);
+        *(start + index).setNum(index);
         index += blockDim.x * gridDim.x;
     }
     // Syncing threads so that they all finish.
@@ -29,7 +29,9 @@ void cudaScenePrep(thrust::device_vector<Superquadric> scene, int size) {
 // This will just call the kernel...
 void cudaCallScenePrep(thrust::device_vector<Superquadric> scene, int size,
                        int blocks, int threadsPerBlock) {
-    cudaScenePrep<<<blocks, threadsPerBlock>>>(scene, size);
+
+    Superquadric * start = thrust::raw_pointer_cast(&scene[0]);
+    cudaScenePrep<<<blocks, threadsPerBlock>>>(start, size);
 }
 
 
@@ -39,12 +41,12 @@ __global__
 void cudaRayTrace(Superquadric object,
                   thrust::device_vector<Superquadric> scene, 
                   thrust::device_vector<pointLight> lights,
-                  thrust::device_vector<Ray> screen,
+                  Ray * start,
                   int size, Point * lookFrom) {
     // Thread resiliency measures.
     unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
     while (index < size) {
-        Ray targetRay = screen[index];
+        Ray targetRay = *(start + index);
         Point * origin = targetRay.getStart();
         Point * dir = targetRay.getDir();
 
@@ -88,8 +90,9 @@ void cudaCallRayTrace(Superquadric object,
                       int size, Point * lookFrom, int blocks,
                       int threadsPerBlock) {
 
+    Ray * start = thrust::raw_pointer_cast(&screen[0]);
 
     cudaRayTrace<<<blocks, threadsPerBlock>>>
-                (object, scene, lights, screen, size, lookFrom);
+                (object, scene, lights, start, size, lookFrom);
 }
 
