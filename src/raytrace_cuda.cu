@@ -51,13 +51,13 @@ void cudaRayTrace(Superquadric * object,
         // WHY DO WE KEEP GETTING ADDRESS 0X00000000 AT GET_INTERSECTIONS?
         // I DELETED SO MANY THINGS MANANGRUYGBAKRUGBAEGB
         Ray targetRay = *(start + index);
-        Point * origin = targetRay.getStart();
-        Point * dir = targetRay.getDir();
+        Point origin = targetRay.getStart();
+        Point dir = targetRay.getDir();
 	
 
         // Transform frame of reference so that this object is at origin.
-        Point * new_origin = object->applyTransforms(origin);
-        Point * new_dir = (object->applyDirTransforms(dir))->norm();
+        Point new_origin = object->applyTransforms(origin);
+        Point new_dir = (object->applyDirTransforms(dir)).norm();
 
 
         // Create new ray to do intersection test.
@@ -71,24 +71,16 @@ void cudaRayTrace(Superquadric * object,
         // If there is an intersection
         if (intersects != FLT_MAX && intersects < targetRay.getTime()) {
             // Calculate the intersection point
-            Point * pTran = transR.propagate(intersects);
-            Point * pTrue = object->revertTransforms(pTran); 
+            Point pTran = transR.propagate(intersects);
+            Point pTrue = object->revertTransforms(pTran); 
             // Get the normal at the intersection point
-            Point * n = object->revertDirTransforms((object->getNormal(pTran))->norm());
+            Point n = object->revertDirTransforms((object->getNormal(pTran)).norm());
             // Point *showNorm = *pTran + *(*n / 10);
-            Point * color = object->lighting(pTrue, n, lookFrom, lightStart, sceneStart,
+            Point color = object->lighting(pTrue, n, lookFrom, lightStart, sceneStart,
                                             lightSize, sceneSize);
 
-            targetRay.setColor(color->X(), color->Y(), color->Z());
-            delete color;
-            delete n;
-            delete pTran;
-            delete pTrue;
+            targetRay.setColor(color.X(), color.Y(), color.Z());
            }
-        delete origin;
-        delete dir;
-        delete new_origin;
-        delete new_dir;
         index += blockDim.x * gridDim.x;
     } 
     // Syncing threads so that they all finish...
@@ -99,7 +91,7 @@ void cudaCallRayTrace(Superquadric * object,
                       thrust::device_vector<Superquadric> scene, 
                       thrust::device_vector<pointLight> lights,
                       thrust::device_vector<Ray> screen,
-                      unsigned int size, Point * lookFrom, int blocks,
+                      unsigned int size, Point lookFrom, int blocks,
                       int threadsPerBlock) {
     
     Ray * start = thrust::raw_pointer_cast(&screen[0]);

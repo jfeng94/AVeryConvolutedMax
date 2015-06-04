@@ -1,6 +1,6 @@
 #include "matrix.cuh"
 
-void Matrix::set(Point *p)
+void Matrix::set(Point p)
 {
     this->xyz.set(p);
 }
@@ -22,13 +22,13 @@ rotMat::rotMat(float x, float y, float z, float t)
         exit(1);
     }
     this->xyz.set(x, y, z);;
-    this->xyz   = * (this->xyz.norm());
+    this->xyz   = this->xyz.norm();
     this->theta = t;
 }
 
-rotMat::rotMat(Point *p, float t)
+rotMat::rotMat(Point p, float t)
 {
-    if (p->X() == 0 && p->Y() == 0 && p->Z() == 0)
+    if (p.X() == 0 && p.Y() == 0 && p.Z() == 0)
     {
         std::cerr << "Error! Rotation matrix cannot have no direction\n";
         exit(1);
@@ -36,12 +36,12 @@ rotMat::rotMat(Point *p, float t)
 
     //std::cout << "P:     " << p;
     //std::cout << "PNorm: " <<p->norm();
-    this->xyz = *(p->norm());
+    this->xyz = p.norm();
     this->theta = t;
 }
 
 __host__ __device__
-Point * rotMat::apply(Point * p)
+Point rotMat::apply(Point p)
 {
     float r1  = this->xyz.X();
     float r2  = this->xyz.Y();
@@ -62,17 +62,16 @@ Point * rotMat::apply(Point * p)
     float M33 = r3 * r3 + Cos * (1 - r3 * r3);
 
     float new_x, new_y, new_z;
-    new_x = M11 * p->X() + M21 * p->Y() + M31 * p->Z();
-    new_y = M12 * p->X() + M22 * p->Y() + M32 * p->Z();
-    new_z = M13 * p->X() + M23 * p->Y() + M33 * p->Z();
+    new_x = M11 * p.X() + M21 * p.Y() + M31 * p.Z();
+    new_y = M12 * p.X() + M22 * p.Y() + M32 * p.Z();
+    new_z = M13 * p.X() + M23 * p.Y() + M33 * p.Z();
 
-    Point * result = new Point(new_x, new_y, new_z);
 
-    return result;
+    return Point(new_x, new_y, new_z);
 }
 
 __host__ __device__
-Point * rotMat::unapply(Point * p)
+Point rotMat::unapply(Point p)
 {
     float r1  = this->xyz.X();
     float r2  = this->xyz.Y();
@@ -96,13 +95,11 @@ Point * rotMat::unapply(Point * p)
     float M33 = r3 * r3 + Cos * (1 - r3 * r3);
 
     float new_x, new_y, new_z;
-    new_x = M11 * p->X() + M21 * p->Y() + M31 * p->Z();
-    new_y = M12 * p->X() + M22 * p->Y() + M32 * p->Z();
-    new_z = M13 * p->X() + M23 * p->Y() + M33 * p->Z();
+    new_x = M11 * p.X() + M21 * p.Y() + M31 * p.Z();
+    new_y = M12 * p.X() + M22 * p.Y() + M32 * p.Z();
+    new_z = M13 * p.X() + M23 * p.Y() + M33 * p.Z();
 
-    Point * result = new Point(new_x, new_y, new_z);
-
-    return result;
+    return Point(new_x, new_y, new_z);
 }
 
 /*****************************************************************************/
@@ -118,27 +115,27 @@ scaMat::scaMat(float x, float y, float z)
     this->xyz.set(x, y, z);
 }
 
-scaMat::scaMat(Point * p)
+scaMat::scaMat(Point p)
 {
-    this->xyz = *p;
+    this->xyz = p;
 }
 
 __host__ __device__
-Point * scaMat::apply(Point * p)
+Point scaMat::apply(Point p)
 {
-    float new_x = p->X() * this->xyz.X();
-    float new_y = p->Y() * this->xyz.Y();
-    float new_z = p->Z() * this->xyz.Z();
-    return new Point(new_x, new_y, new_z);;
+    float new_x = p.X() * this->xyz.X();
+    float new_y = p.Y() * this->xyz.Y();
+    float new_z = p.Z() * this->xyz.Z();
+    return Point(new_x, new_y, new_z);;
 }
 
 __host__ __device__
-Point * scaMat::unapply(Point * p)
+Point scaMat::unapply(Point p)
 {
-    float new_x = p->X() / this->xyz.X();
-    float new_y = p->Y() / this->xyz.Y();
-    float new_z = p->Z() / this->xyz.Z();
-    return new Point(new_x, new_y, new_z);;
+    float new_x = p.X() / this->xyz.X();
+    float new_y = p.Y() / this->xyz.Y();
+    float new_z = p.Z() / this->xyz.Z();
+    return Point(new_x, new_y, new_z);;
 }
 
 /*****************************************************************************/
@@ -154,25 +151,25 @@ traMat::traMat(float x, float y, float z)
     this->xyz.set(x, y, z);
 }
 
-traMat::traMat(Point * p)
+traMat::traMat(Point p)
 {
-    this->xyz = *p;
+    this->xyz = p;
 }
 
 __host__ __device__
-Point * traMat::apply(Point * p)
+Point traMat::apply(Point p)
 {
-    float new_x = p->X() + this->xyz.X();
-    float new_y = p->Y() + this->xyz.Y();
-    float new_z = p->Z() + this->xyz.Z();
-    return new Point(new_x, new_y, new_z);;
+    float new_x = p.X() + this->xyz.X();
+    float new_y = p.Y() + this->xyz.Y();
+    float new_z = p.Z() + this->xyz.Z();
+    return Point(new_x, new_y, new_z);;
 }
 
 __host__ __device__
-Point * traMat::unapply(Point * p)
+Point traMat::unapply(Point p)
 {
-    float new_x = p->X() - this->xyz.X();
-    float new_y = p->Y() - this->xyz.Y();
-    float new_z = p->Z() - this->xyz.Z();
-    return new Point(new_x, new_y, new_z);;
+    float new_x = p.X() - this->xyz.X();
+    float new_y = p.Y() - this->xyz.Y();
+    float new_z = p.Z() - this->xyz.Z();
+    return Point(new_x, new_y, new_z);;
 }
