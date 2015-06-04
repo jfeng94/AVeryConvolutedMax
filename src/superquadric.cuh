@@ -34,6 +34,8 @@ class Superquadric {
         Superquadric(Point, Point, Point, float, float, float,
                      Point, Point, Point, float, float, float);
 
+	// Accessor
+        __host__ __device__ float getEcc();
         // Point Transformation functions
         __host__ __device__ Point applyTransforms(Point);
         __host__ __device__ Point applyDirTransforms(Point);

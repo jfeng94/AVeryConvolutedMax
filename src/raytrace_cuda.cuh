@@ -11,7 +11,7 @@ void cudaCallRayTrace(Superquadric * object,
                   thrust::device_vector<Superquadric> scene, 
                   thrust::device_vector<pointLight> lights,
                   thrust::device_vector<Ray> screen,
-                  unsigned int size, Point lookFrom, int blocks,
+                  unsigned int size, Point * lookFrom, int blocks,
                   int threadsPerBlock);
 
 #endif //CUDA_RAYTRACE_CUH

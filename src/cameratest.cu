@@ -83,14 +83,14 @@ int main(int argc, char ** argv)
 
 
 
-    Point LookFrom = Point(2, 5, 0);
+    Point * LookFrom = new Point(2, 5, 0);
     Point LookAt   = Point(0, 0, 0);
     Point Up       = Point(0, 0, 1);
     float Fd         = 0.05;
     float Fx         = 0.08;
     float Nx         = 100;
     float Ny         = 100;
-    Camera *c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
+    Camera *c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
 
     std::cout << "Raytracing..." << std::endl;
     c->runRayTracer(scene, lights);
@@ -114,7 +114,7 @@ int main(int argc, char ** argv)
     int threadsPerBlock = atoi(argv[2]);
 
     // Create a new camera with the same things as above.
-    Camera * d_c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
+    Camera * d_c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
     
     // Create two device_vectors from the std::vectors above.
     thrust::device_vector<Superquadric> d_scene(scene.begin(), scene.end());
@@ -137,16 +137,17 @@ int main(int argc, char ** argv)
     // Running the Ray Tracer...
 
     // Adding an eye light
-    pointLight *d_l = new pointLight(LookFrom.X(),
-                                     LookFrom.Y(),
-                                     LookFrom.Z(),
+    pointLight *d_l = new pointLight(LookFrom->X(),
+                                     LookFrom->Y(),
+                                     LookFrom->Z(),
                                      255, 255, 255, 1);
     d_lights.push_back(*d_l);
 
     std::cout << "Raytracing..." << std::endl;
     // Allocate space for the point on the GPU
-    Point cLookFrom = d_c->getLookFrom();
-    
+    Point * d_lookFrom;
+    cudaMalloc(&d_lookFrom, sizeof(Point));
+    cudaMemcpy(d_lookFrom, LookFrom, sizeof(Point), cudaMemcpyHostToDevice);
     // TODO: Weird here. kernel has illegal memory access, for whatever reason. 
     // Something probably to do with poor accessing, or maybe trying to get
     // a member from something that we cannot get? The sizes of device_vector and 
@@ -154,14 +155,11 @@ int main(int argc, char ** argv)
 
     
     for(int i = 0; i < d_scene_size; i++) {
-        std::cout << i << "th shape in the scene" << std::endl;
         Superquadric * d_shape;
         cudaMalloc(&d_shape, sizeof(Superquadric));
         cudaMemcpy(d_shape, &scene[i], sizeof(Superquadric), cudaMemcpyHostToDevice);
-	std::cout << "kernel called" << std::endl;
-	std::cout << cLookFrom.X() << " " << cLookFrom.Y() << " " << cLookFrom.Z() << std::endl;
         cudaCallRayTrace(d_shape, d_scene, d_lights, d_screen, d_screen_size, 
-                         cLookFrom, blocks, threadsPerBlock);
+                         d_lookFrom, blocks, threadsPerBlock);
 
         cudaFree(d_shape);
     }

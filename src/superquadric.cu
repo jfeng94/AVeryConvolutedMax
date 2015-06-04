@@ -46,6 +46,11 @@ Superquadric::Superquadric(Point tra, Point sca, Point rot,
     this->shine = 5;
 }
 
+__host__ __device__
+float Superquadric::getEcc() {
+    return this->e;
+}
+
 // Fully customized superquadric constructor.
 Superquadric::Superquadric(Point tra, Point sca, Point rot,
                            float theta, float E, float N,

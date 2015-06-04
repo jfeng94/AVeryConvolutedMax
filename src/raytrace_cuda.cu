@@ -43,18 +43,20 @@ void cudaRayTrace(Superquadric * object,
                   Superquadric * sceneStart, 
                   pointLight * lightStart,
                   Ray * start,
-                  unsigned int size, unsigned int lightSize, unsigned int sceneSize, Point lookFrom) {
+                  unsigned int size, unsigned int lightSize, unsigned int sceneSize, Point * lookFrom) {
     // Thread resiliency measuresi.
     unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
     while (index < size) {
         //WAHT IS GOING ON HERE AEBRGUKAEGBKAERBAG
         // WHY DO WE KEEP GETTING ADDRESS 0X00000000 AT GET_INTERSECTIONS?
         // I DELETED SO MANY THINGS MANANGRUYGBAKRUGBAEGB
-        printf("index = %d.\n", index);
+        printf("eccentricity = %f.\n", object->getEcc());
         Ray targetRay = *(start + index);
         Point origin = targetRay.getStart();
         Point dir = targetRay.getDir();
-	
+
+        Point temp_lookFrom;
+        temp_lookFrom.set(lookFrom->X(), lookFrom->Y(), lookFrom->Z());
 
         // Transform frame of reference so that this object is at origin.
         Point new_origin = object->applyTransforms(origin);
@@ -68,7 +70,6 @@ void cudaRayTrace(Superquadric * object,
 
         // Check for intersection
         float intersects = object->get_intersection(transR);
-
         // If there is an intersection
         if (intersects != FLT_MAX && intersects < targetRay.getTime()) {
             // Calculate the intersection point
@@ -77,7 +78,7 @@ void cudaRayTrace(Superquadric * object,
             // Get the normal at the intersection point
             Point n = object->revertDirTransforms((object->getNormal(pTran)).norm());
             // Point *showNorm = *pTran + *(*n / 10);
-            Point color = object->lighting(pTrue, n, lookFrom, lightStart, sceneStart,
+            Point color = object->lighting(pTrue, n, temp_lookFrom, lightStart, sceneStart,
                                             lightSize, sceneSize);
 
             targetRay.setColor(color.X(), color.Y(), color.Z());
@@ -92,7 +93,7 @@ void cudaCallRayTrace(Superquadric * object,
                       thrust::device_vector<Superquadric> scene, 
                       thrust::device_vector<pointLight> lights,
                       thrust::device_vector<Ray> screen,
-                      unsigned int size, Point lookFrom, int blocks,
+                      unsigned int size, Point * lookFrom, int blocks,
                       int threadsPerBlock) {
     std::cout << "Calling it now" << std::endl;
     Ray * start = thrust::raw_pointer_cast(&screen[0]);
