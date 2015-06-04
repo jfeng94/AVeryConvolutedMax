@@ -35,6 +35,18 @@ Camera::Camera(Point LookFrom, Point LookAt, Point Up,
     this->init();
 }
 
+Camera::Camera(Camera* c)
+{
+    this->LookFrom = c->LookFrom;
+    this->LookAt   = c->LookAt;
+    this->Up       = c->Up;
+    this->Fd       = c->Fd;
+    this->Fx       = c->Fx;
+    this->Nx       = c->Nx;
+    this->Ny       = c->Ny;
+
+    this->init();
+}
 
 void Camera::init()
 {

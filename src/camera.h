@@ -28,11 +28,13 @@ class Camera
         // Camera constructor
         //     LookFrom LookAt   Fd     Fx     Nx     Ny
         Camera(Point, Point, Point, float, float, float, float);
+        Camera(Camera*);
 
         // Accessor
         std::vector<Ray> getRayScreen();
-	Point getLookFrom();
-	void setRayScreen(std::vector<Ray> screen);
+        Point * getFrom() {return new Point(LookFrom.X(), LookFrom.Y(), LookFrom.Z());}
+	    Point getLookFrom();
+	    void setRayScreen(std::vector<Ray> screen);
 
         void runRayTracer(std::vector<Superquadric>, std::vector<pointLight>);
         void scenePrep(std::vector<Superquadric>);

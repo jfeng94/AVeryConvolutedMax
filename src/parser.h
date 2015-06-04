@@ -1,4 +1,8 @@
 #include <vector>
 #include "superquadric.cuh"
+#include "point.cuh"
+#include "camera.h"
 
-std::vector<Superquadric> parseObjects(const char *filename);
+Camera * parseObjects(const char *filename,
+                      std::vector<Superquadric> &scene,
+                      std::vector<pointLight> &lights);

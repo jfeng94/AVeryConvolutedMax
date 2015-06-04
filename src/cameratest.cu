@@ -94,10 +94,8 @@ int main(int argc, char ** argv)
     
 
 
-     
     // Preparing for CPU stuff
     std::cout << "Preparing for CPU Raytracing..." << std::endl;
-    std::vector<Superquadric> scene = parseObjects(argv[1]);
     // scene.push_back(*s5);
     // scene.push_back(*s1);
     // scene.push_back(*s2);
@@ -105,27 +103,30 @@ int main(int argc, char ** argv)
     // scene.push_back(*s4);
 
 
-    pointLight *l1 = new pointLight( 0, 15, 0,   0, 140, 125, 0.005);
-    pointLight *l2 = new pointLight( 0,-15, 0, 140,   0, 125, 0.005);
-    pointLight *l3 = new pointLight( 2, 5, 0, 255, 255, 255, 10);
-    pointLight *l4 = new pointLight( 5, 5,-5, 125, 140,   0, 0.005);
-    std::vector<pointLight> lights;
-    lights.push_back(*l1);
-    lights.push_back(*l2);
-    lights.push_back(*l3);
-    lights.push_back(*l4);
+    //pointLight *l1 = new pointLight( 0, 15, 0,   0, 140, 125, 0.005);
+    //pointLight *l2 = new pointLight( 0,-15, 0, 140,   0, 125, 0.005);
+    //pointLight *l3 = new pointLight( 2, 5, 0, 255, 255, 255, 10);
+    //pointLight *l4 = new pointLight( 5, 5,-5, 125, 140,   0, 0.005);
+    //lights.push_back(*l1);
+    //lights.push_back(*l2);
+    //lights.push_back(*l3);
+    //lights.push_back(*l4);
 
 
 
-    Point * LookFrom = new Point(12, 7, 0);
-    Point LookAt   = Point(0, 0, 0);
-    Point Up       = Point(0, 0, 1);
-    float Fd         = 0.05;
-    float Fx         = 0.08;
-    float Nx         = 1920;
-    float Ny         = 1080;
-    Camera *c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
+    //Point * LookFrom = new Point(12, 7, 0);
+    //Point LookAt   = Point(0, 0, 0);
+    //Point Up       = Point(0, 0, 1);
+    //float Fd         = 0.05;
+    //float Fx         = 0.08;
+    //float Nx         = 1920;
+    //float Ny         = 1080;
+    //Camera *c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
     
+    std::vector<Superquadric> scene;
+    std::vector<pointLight> lights;
+    Camera *c = parseObjects(argv[1], scene, lights);
+    Point * LookFrom = c->getFrom();
     //std::cout << "Raytracing..." << std::endl;
     float time_elapsed;
 
@@ -143,7 +144,7 @@ int main(int argc, char ** argv)
 
 
     // Create a new camera with the same things as above.
-    Camera * d_c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
+    Camera * d_c = new Camera(c);
     
     // Create two device_vectors from the std::vectors above.
     thrust::device_vector<Superquadric> d_scene(scene.begin(), scene.end());
@@ -170,11 +171,11 @@ int main(int argc, char ** argv)
     // Running the Ray Tracer...
 
     // Adding an eye light
-    pointLight *d_l = new pointLight(LookFrom->X(),
-                                     LookFrom->Y(),
-                                     LookFrom->Z(),
-                                     255, 255, 255, 1);
-    d_lights.push_back(*d_l);
+    //pointLight *d_l = new pointLight(LookFrom->X(),
+    //                                 LookFrom->Y(),
+    //                                 LookFrom->Z(),
+    //                                 255, 255, 255, 1);
+    //d_lights.push_back(*d_l);
 
     std::cout << "Raytracing..." << std::endl;
     // Allocate space for the point on the GPU
