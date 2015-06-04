@@ -29,39 +29,44 @@ Superquadric::Superquadric(float E, float N)
 }
 
 // Basic customized superquadric constructor.
-Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
+Superquadric::Superquadric(Point tra, Point sca, Point rot,
                            float theta, float E, float N)
 {
     this->t.set(tra);
     this->s.set(sca);
-    this->r.set(rot->norm());
+    this->r.set(rot.norm());
     this->r.setTheta(theta);
     this->e = E;
     this->n = N;
 
-    this->ambient = *(new Point(255, 255, 255));
-    this->specular = *(new Point(155, 155, 155));
-    this->diffuse = *(new Point(155, 155, 155));
+    this->ambient = Point(255, 255, 255);
+    this->specular = Point(155, 155, 155);
+    this->diffuse = Point(155, 155, 155);
 
     this->shine = 5;
 }
 
+__host__ __device__
+float Superquadric::getEcc() {
+    return this->e;
+}
+
 // Fully customized superquadric constructor.
-Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
+Superquadric::Superquadric(Point tra, Point sca, Point rot,
                            float theta, float E, float N,
-                           Point * dif, Point * amb, Point * spe,
+                           Point dif, Point amb, Point spe,
                            float shi, float sne, float opa )
 {
     this->t.set(tra);
     this->s.set(sca);
-    this->r.set(rot->norm());
+    this->r.set(rot.norm());
     this->r.setTheta(theta);
     this->e = E;
     this->n = N;
 
-    this->diffuse  = *dif;
-    this->ambient  = *amb;
-    this->specular = *spe;
+    this->diffuse  = dif;
+    this->ambient  = amb;
+    this->specular = spe;
 
     this->shine   = shi;
     this->snell   = sne;
@@ -72,25 +77,25 @@ Superquadric::Superquadric(Point * tra, Point * sca, Point * rot,
 // POINT TRANSFORMATION FUNCTIONS 
 ///////////////////////////////////////////////////////////////////////////////
 __host__ __device__
-Point * Superquadric::applyTransforms(Point * p)
+Point Superquadric::applyTransforms(Point p)
 {
     return this->s.unapply(this->r.unapply(this->t.unapply(p)));
 }
 
 __host__ __device__
-Point * Superquadric::applyDirTransforms(Point *p)
+Point Superquadric::applyDirTransforms(Point p)
 {
     return this->s.unapply(this->r.unapply(p));
 }
 
 __host__ __device__
-Point * Superquadric::revertTransforms(Point * p)
+Point Superquadric::revertTransforms(Point p)
 {
     return this->t.apply(this->r.apply(this->s.apply(p)));
 }
 
 __host__ __device__
-Point * Superquadric::revertDirTransforms(Point * p)
+Point Superquadric::revertDirTransforms(Point p)
 {
     return this->r.apply(this->s.apply(p));
 }
@@ -100,38 +105,36 @@ Point * Superquadric::revertDirTransforms(Point * p)
 ///////////////////////////////////////////////////////////////////////////////
 // Check if a given point is inside or outside of the 
 __host__ __device__
-float Superquadric::isq(Point *p)
+float Superquadric::isq(Point p)
 {
-    Point * transP = p;
-    //Point * transP = this->applyTransforms(p);
+    Point transP = p;
+    //Point transP = this->applyTransforms(p);
     //std::cout << "ISQ --\n" << p;
     //std::cout << transP;
-    return powf(powf(transP->X() * transP->X(), (double) 1 / e) +
-               powf(transP->Y() * transP->Y(), (double) 1 / e),
+    return powf(powf(transP.X() * transP.X(), (double) 1 / e) +
+               powf(transP.Y() * transP.Y(), (double) 1 / e),
                e / n) +
-           powf(transP->Z() * transP->Z(), (double) 1 / n) - 1;
+           powf(transP.Z() * transP.Z(), (double) 1 / n) - 1;
 }
 
 // Get the derivative at a point emanating from a ray.
 __host__ __device__ 
-float Superquadric::isq_prime(Point *p, Ray r)
+float Superquadric::isq_prime(Point p, Ray r)
 {
-    Point * g = this->isq_g(p);
-    Point * new_r = r.getDir();
-    float ret_val = g->dot(new_r);
-    delete new_r;
-    delete g;
+    Point g = this->isq_g(p);
+    Point new_r = r.getDir();
+    float ret_val = g.dot(new_r);
     return ret_val;
 }
 
 // Get the gradient vector of the superquadric
 __host__ __device__
-Point * Superquadric::isq_g(Point * p)
+Point Superquadric::isq_g(Point p)
 {
     float x, y, z, gx, gy, gz;
-    x = p->X();
-    y = p->Y();
-    z = p->Z();
+    x = p.X();
+    y = p.Y();
+    z = p.Z();
     //e = this->e;
     //n = this->n;
 
@@ -158,18 +161,17 @@ Point * Superquadric::isq_g(Point * p)
         gz           = (2 * z * powf(z * z, ((double) 1 / n) - 1)) / (double) n;
     }
 
-    return new Point(gx, gy, gz);
+    return Point(gx, gy, gz);
 }
 
 // Return the normal vector of the surface at a point p
 __host__ __device__
-Point * Superquadric::getNormal(Point * p)
+Point Superquadric::getNormal(Point p)
 {
     float norm, x, y, z;
 
-    Point * n = this->isq_g(p);
-    Point * m = n->norm();
-    delete n;
+    Point n = this->isq_g(p);
+    Point m = n.norm();
 
     return m;
 }
@@ -182,9 +184,9 @@ __host__ __device__
 float Superquadric::get_initial_guess(Ray r)
 {
     float a, b, c, discriminant;
-    a = (r.getDir())->dot(r.getDir());
-    b = 2 * (r.getStart())->dot(r.getDir());
-    c = (r.getStart())->dot(r.getStart()) - 3;
+    a = (r.getDir()).dot(r.getDir());
+    b = 2 * (r.getStart()).dot(r.getDir());
+    c = (r.getStart()).dot(r.getStart()) - 3;
 
     if (b < 0)
     {
@@ -234,7 +236,7 @@ float Superquadric::get_intersection(Ray r)
     }
     
     // Propagate the ray to the bounding sphere
-    Point * intersect = r.propagate(t_old);
+    Point intersect = r.propagate(t_old);
     
     done = false;
     int iterations = 0;
@@ -280,9 +282,7 @@ float Superquadric::get_intersection(Ray r)
 
         // Update new time guess
         t_new = t_old - (g / g_prime);
-        
-        // Delete the old pointer.
-        delete intersect;
+
 
         // Find the new intersection point.
         intersect = r.propagate(t_new);
@@ -291,20 +291,19 @@ float Superquadric::get_intersection(Ray r)
     //std::cout << "Case 5\n";
     // Return found time
     //out << intersect;
-    delete intersect;
     return t_new;
 }
 
-void Superquadric::rayTrace(Ray &r, Point * lookFrom,
+void Superquadric::rayTrace(Ray &r, Point lookFrom,
                             std::vector<pointLight> lights,
                             std::vector<Superquadric> scene)
 {
-    Point * origin = r.getStart();
-    Point * dir    = r.getDir();
+    Point origin = r.getStart();
+    Point dir    = r.getDir();
 
     // Transform frame of reference so that this object is at origin.
     origin = this->applyTransforms(origin);
-    dir    = (this->applyDirTransforms(dir))->norm();
+    dir    = (this->applyDirTransforms(dir)).norm();
     
     //std::cout << "Transformed origin: " << origin;
     //std::cout << "Transformed direct: " << dir;
@@ -324,20 +323,20 @@ void Superquadric::rayTrace(Ray &r, Point * lookFrom,
     if (intersects != FLT_MAX && intersects < r.getTime())
     {
         // Calculate the intersection point
-        Point * pTran = transR.propagate(intersects);
-        Point * pTrue = this->revertTransforms(pTran);
+        Point pTran = transR.propagate(intersects);
+        Point pTrue = this->revertTransforms(pTran);
 
 
         // Get the normal at the intersection point
-        Point * n = this->revertDirTransforms((this->getNormal(pTran))->norm());
+        Point n = this->revertDirTransforms((this->getNormal(pTran)).norm());
 
-        Point *showNorm = *pTran + *(*n / 10);
+        Point showNorm = pTran + (n / 10);
 
-        out << pTran->X() << " " << pTran->Y() << " " << pTran->Z() << " " << showNorm;
+        out << pTran.X() << " " << pTran.Y() << " " << pTran.Z() << " " << showNorm;
 
-        Point * color = lighting(pTrue, n, lookFrom, lights, scene);
+        Point color = lighting(pTrue, n, lookFrom, lights, scene);
         //std::cout << "Setting white pixel...\n";
-        r.setColor(color->X(), color->Y(), color->Z());
+        r.setColor(color.X(), color.Y(), color.Z());
     }
 }
 
@@ -346,17 +345,17 @@ void Superquadric::rayTrace(Ray &r, Point * lookFrom,
 ///////////////////////////////////////////////////////////////////////////////
 // Lighting contribution algorithm: Phong's
 __host__
-Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
+Point Superquadric::lighting(Point p, Point n, Point lookFrom,
                                std::vector<pointLight> lights,
                                std::vector<Superquadric> scene)
 {
-    Point * difSum = new Point(0, 0, 0);
-    Point * speSum = new Point(0, 0, 0);
-    Point * reflLight = new Point(0, 0, 0);
-    Point * refrLight = new Point(0, 0, 0);
+    Point difSum = Point(0, 0, 0);
+    Point speSum = Point(0, 0, 0);
+    Point reflLight = Point(0, 0, 0);
+    Point refrLight = Point(0, 0, 0);
     
     // Direction from point to source (Usually camera)
-    Point * eDir = (*lookFrom - *p)->norm();
+    Point eDir = (lookFrom - p).norm();
 
     for (int i = 0; i < lights.size(); i++)
     {
@@ -365,33 +364,33 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
         if (!shadow)
         {
             // Solve for attenuation term
-            Point * lP  = lights[i].getPos();
-            Point * lC  = lights[i].getColor();
+            Point lP  = lights[i].getPos();
+            Point lC  = lights[i].getColor();
             float att_k = lights[i].getAtt_k();
 
             //std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
 
-            Point * lDir = (*lP - *p)->norm();
-            float lightDist = lP->dist(p); 
+            Point lDir = (lP - p).norm();
+            float lightDist = lP.dist(p); 
 
             float atten = 1 / (float) (1 + (att_k * lightDist * lightDist));
 
             // Add diffusion factor to sum
-            float nDotl = n->dot(lDir);
-            Point * lDif = *lC * (atten * ((0 < nDotl) ? nDotl : 0));
-            *difSum += *lDif;
+            float nDotl = n.dot(lDir);
+            Point lDif = lC * (atten * ((0 < nDotl) ? nDotl : 0));
+            difSum += lDif;
 
             // Add specular factor to sum
-            Point *dirDif = (*eDir + *lDir)->norm();
-            float nDotDir = n->dot(dirDif);
-            Point * lSpe  = *lC * (atten * pow(((0 < nDotDir && 0 < nDotl) ? nDotDir : 0), shine));
-            *speSum += *lSpe;
+            Point dirDif = (eDir + lDir).norm();
+            float nDotDir = n.dot(dirDif);
+            Point lSpe  = lC * (atten * pow(((0 < nDotDir && 0 < nDotl) ? nDotDir : 0), shine));
+            speSum += lSpe;
         }
     }
     
-    Point * min = new Point(255, 255, 255);
-    Point * result =  min->cwiseMin(*(*(*difSum / 255) * this->diffuse) +
-                                    *(*(*speSum / 255) * this->specular));
+    Point min = Point(255, 255, 255);
+    Point result =  min.cwiseMin(((difSum / 255) * this->diffuse) +
+                                    ((speSum / 255) * this->specular));
     //std::cout << "Normal v:  " << n;
     //std::cout << "Diffusion: " << *difSum * this->diffuse;
     //std::cout << "Specular:  " << *speSum * this->specular;
@@ -400,18 +399,18 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
 } 
 
 __device__ 
-Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
+Point Superquadric::lighting(Point p, Point n, Point lookFrom,
                  pointLight * lightStart,
                  Superquadric * sceneStart,
                  int lightSize,
                  int sceneSize) {
-    Point * difSum = new Point(0, 0, 0);
-    Point * speSum = new Point(0, 0, 0);
-    Point * reflLight = new Point(0, 0, 0);
-    Point * refrLight = new Point(0, 0, 0);
+    Point difSum = Point(0, 0, 0);
+    Point speSum = Point(0, 0, 0);
+    Point reflLight = Point(0, 0, 0);
+    Point refrLight = Point(0, 0, 0);
     
     // Direction from point to source (Usually camera)
-    Point * eDir = (*lookFrom - *p)->norm();
+    Point eDir = (lookFrom - p).norm();
 
 
     for (int i = 0; i < lightSize; i++)
@@ -422,33 +421,33 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
         if (!shadow)
         {
             // Solve for attenuation term
-            Point * lP  = (*(lightStart + i)).getPos();
-            Point * lC  = (*(lightStart + i)).getColor();
+            Point lP  = (*(lightStart + i)).getPos();
+            Point lC  = (*(lightStart + i)).getColor();
             float att_k = (*(lightStart + i)).getAtt_k();
 
             //std::cout << "Applying Light: " << lP << lC << "To Point: " << p << "\n\n";
 
-            Point * lDir = (*lP - *p)->norm();
-            float lightDist = lP->dist(p); 
+            Point lDir = (lP - p).norm();
+            float lightDist = lP.dist(p); 
 
             float atten = 1 / (float) (1 + (att_k * lightDist * lightDist));
 
             // Add diffusion factor to sum
-            float nDotl = n->dot(lDir);
-            Point * lDif = *lC * (atten * ((0 < nDotl) ? nDotl : 0));
-            *difSum += *lDif;
+            float nDotl = n.dot(lDir);
+            Point lDif = lC * (atten * ((0 < nDotl) ? nDotl : 0));
+            difSum += lDif;
 
             // Add specular factor to sum
-            Point *dirDif = (*eDir + *lDir)->norm();
-            float nDotDir = n->dot(dirDif);
-            Point * lSpe  = *lC * (atten * pow(((0 < nDotDir && 0 < nDotl) ? nDotDir : 0), shine));
-            *speSum += *lSpe;
+            Point dirDif = (eDir + lDir).norm();
+            float nDotDir = n.dot(dirDif);
+            Point lSpe  = lC * (atten * pow(((0 < nDotDir && 0 < nDotl) ? nDotDir : 0), shine));
+            speSum += lSpe;
         }
     }
     
-    Point * min = new Point(255, 255, 255);
-    Point * result =  min->cwiseMin(*(*(*difSum / 255) * this->diffuse) +
-                                    *(*(*speSum / 255) * this->specular));
+    Point min = Point(255, 255, 255);
+    Point result =  min.cwiseMin(((difSum / 255) * this->diffuse) +
+                                    ((speSum / 255) * this->specular));
     //std::cout << "Normal v:  " << n;
     //std::cout << "Diffusion: " << *difSum * this->diffuse;
     //std::cout << "Specular:  " << *speSum * this->specular;
@@ -457,14 +456,14 @@ Point * Superquadric::lighting(Point * p, Point * n, Point * lookFrom,
 }
 
 // Check if the path from the light source to the point is interrupted
-bool Superquadric::checkShadow(Point *p, pointLight l,
+bool Superquadric::checkShadow(Point p, pointLight l,
                                std::vector<Superquadric> scene)
 {
     /* Shadows not working yet...
     return false;
 
     // Get direction from point to light, create ray
-    Point * dir = (*p - *(l.getPos()))->norm();
+    Point dir = (*p - *(l.getPos()))->norm();
     Ray r;
     r.setStart(p);
     r.setDir(dir);
@@ -480,7 +479,7 @@ bool Superquadric::checkShadow(Point *p, pointLight l,
     for (int i = 0; i < scene.size(); i++)
     {
         float time = scene[i].get_intersection(r);
-        Point * intersection = r.propagate(time);
+        Point intersection = r.propagate(time);
         dist2 = intersection->dist(p);
 
         if(i != this->obj_num)

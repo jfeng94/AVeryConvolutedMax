@@ -14,7 +14,7 @@ class Matrix
         Point xyz;
 
     public:
-        void set(Point *);
+        void set(Point);
 };
 
 // Rotation matrix
@@ -26,12 +26,12 @@ class rotMat : public Matrix
     public:
         rotMat();              // Default constructor
         rotMat(float, float, float, float);
-        rotMat(Point*, float); // Normal  constructor
+        rotMat(Point, float); // Normal  constructor
 
         void setTheta(float t) {this->theta = t;}
 
-        __host__ __device__ Point *   apply(Point *);
-        __host__ __device__ Point * unapply(Point *);
+        __host__ __device__ Point    apply(Point);
+        __host__ __device__ Point  unapply(Point);
 
 };
 
@@ -41,10 +41,10 @@ class scaMat : public Matrix
     public:
         scaMat();
         scaMat(float, float, float);
-        scaMat(Point*);
+        scaMat(Point);
 
-        __host__ __device__ Point *   apply(Point *);
-        __host__ __device__ Point * unapply(Point *);
+        __host__ __device__ Point    apply(Point);
+        __host__ __device__ Point  unapply(Point);
 };
 
 // Translation matrix
@@ -53,9 +53,9 @@ class traMat : public Matrix
     public:
         traMat();
         traMat(float, float, float);
-        traMat(Point *);
+        traMat(Point);
 
-        __host__ __device__ Point *   apply(Point *);
-        __host__ __device__ Point * unapply(Point *);
+        __host__ __device__ Point    apply(Point);
+        __host__ __device__ Point  unapply(Point);
 };
 #endif

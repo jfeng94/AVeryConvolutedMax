@@ -27,7 +27,7 @@ class Camera
 
         // Camera constructor
         //     LookFrom LookAt   Fd     Fx     Nx     Ny
-        Camera(Point *, Point *, Point *, float, float, float, float);
+        Camera(Point, Point, Point, float, float, float, float);
 
         // Accessor
         std::vector<Ray> getRayScreen();

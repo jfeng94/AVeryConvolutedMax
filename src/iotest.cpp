@@ -1,6 +1,6 @@
-#include "superquadric.cpp"
-#include "point.cpp"
-#include "matrix.cpp"
+#include "superquadric.cuh"
+#include "point.cuh"
+#include "matrix.cuh"
 
 #include <cstdlib>
 #include <ctime>
@@ -12,23 +12,23 @@ int main()
 {
     srand(time(0));
 
-    Point *rot, *tra, *sca;
+    Point rot, tra, sca;
     float theta, e, n;
 
 
     Superquadric * s  = new Superquadric(1, 1);
 
-    rot              = new Point(1, 0, 0);
-    tra              = new Point(0, 0, 0);
-    sca              = new Point(0.5, 0.5, 0.5);
+    rot              = Point(1, 0, 0);
+    tra              = Point(0, 0, 0);
+    sca              = Point(0.5, 0.5, 0.5);
     theta             = 0;
     e                 = 0.1;
     n                 = 0.1;
     Superquadric * s2 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot              = new Point(0, 1, 1);
-    tra              = new Point(0, 0, 0);
-    sca              = new Point(0.5, 0.5, 0.5);
+    rot              = Point(0, 1, 1);
+    tra              = Point(0, 0, 0);
+    sca              = Point(0.5, 0.5, 0.5);
     theta             = 3.1415926 / 2;
     e                 = 0.1;
     n                 = 0.1;
@@ -54,7 +54,7 @@ int main()
         z = min_z + static_cast <float> (rand()) /
             (static_cast <float> (RAND_MAX/(max_z - min_z)));
 
-        Point * p = new Point(x, y, z);
+        Point p = Point(x, y, z);
 
         if (0)
         {
@@ -78,6 +78,8 @@ int main()
         else
             i--;
     }
-
+    delete s;
+    delete s2;
+    delete s3;
     return 0;
 }

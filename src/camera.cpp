@@ -19,13 +19,13 @@ Camera::Camera()
     this->init();
 }
 
-Camera::Camera(Point * LookFrom, Point * LookAt, Point * Up,
+Camera::Camera(Point LookFrom, Point LookAt, Point Up,
                float Fd, float Fx, float Nx, float Ny)
 {
     // Set given values
-    this->LookFrom = *LookFrom;
-    this->LookAt   = *LookAt;
-    this->Up       = *Up->norm();
+    this->LookFrom = LookFrom;
+    this->LookAt   = LookAt;
+    this->Up       = Up.norm();
     this->Fd       = Fd;
     this->Fx       = Fx;
     this->Nx       = Nx;
@@ -45,27 +45,27 @@ void Camera::init()
     float dFy = Fy / Ny;
 
     // Get the directional vector for the camera
-    Point * A = (this->LookFrom - this->LookAt)->norm();
+    Point A = (this->LookFrom - this->LookAt).norm();
     
     // Project A onto our Upwards vector
-    float alpha = A->dot(&(this->Up)) / A->dot(A);
-    Point * B = (this->Up - *(*A * alpha))->norm();
+    float alpha = A.dot(this->Up) / A.dot(A);
+    Point B = (this->Up - (A * alpha)).norm();
 
     // Get the orthogonal vector to A and B
-    Point * C = (A->cross(B))->norm();
+    Point C = (A.cross(B)).norm();
 
     // Get incremental vectors
-    Point *DFx = *C * dFx;
-    Point *DFy = *B * dFy;
+    Point DFx = C * dFx;
+    Point DFy = B * dFy;
 
     // Get upper left corner
-    Point * Start = *(*A * Fd) + *(*(*DFy * (1.0 * Ny / 2)) - *(*DFx * (1.0 * Nx / 2)));
-    Point * End;
-    Point * Dir;
+    Point Start = (A * Fd) + ((DFy * (1.0 * Ny / 2)) - (DFx * (1.0 * Nx / 2)));
+    Point End;
+    Point Dir;
 
     std::ofstream out;
     out.open("MatlabTools/CameraRays.txt", std::fstream::out);
-    out << &(this->LookFrom);
+    out << (this->LookFrom);
 
     // Initiate camera rays
     for (int y = 0; y < this->Ny; y++)
@@ -75,11 +75,11 @@ void Camera::init()
             float px = (x * dFx) - (Fx / (double) 2);
             float py = (y * dFy) - (Fy / (double) 2);
             //End = *(*Start + *(*DFx * x)) + *(*DFy * y);
-            End = *(this->LookFrom - *(*A * Fd)) + *(*(*C * px) + *(*B * py));
+            End = (this->LookFrom - (A * Fd)) + ((C * px) + (B * py));
             out << End;
-            Dir = *End - (this->LookFrom);
+            Dir = End - (this->LookFrom);
             Ray r;
-            r.setStart(&(this->LookFrom));
+            r.setStart((this->LookFrom));
             r.setDir(Dir); 
 
            this->rayScreen.push_back(r); 
@@ -138,7 +138,7 @@ void Camera::runRayTracer(std::vector<Superquadric> scene,
     {
         for (int px = 0; px < this->rayScreen.size(); px++)
         {
-            scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights, scene);
+           scene[i].rayTrace(this->rayScreen[px], this->LookFrom, lights, scene);
         }
     }
 }

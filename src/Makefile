@@ -34,10 +34,10 @@ else
       NVCCFLAGS := -m64
 endif
 
-all: iotest raytrace
+all: raytrace
 
-iotest:
-	$(CC) iotest.cpp -o iotest
+iotest: matrix.o superquadric.o point.o 
+	$(CC) -I$(CUDA_INC_PATH) $(LDFLAGS) iotest.cpp matrix.o superquadric.o point.o -o iotest
 
 raytrace.o: raytrace_cuda.cu
 	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c -line_info raytrace_cuda.cu
@@ -61,4 +61,4 @@ raytrace: cameratest.o matrix.o superquadric.o point.o camera.o raytrace.o
 	$(NVCC) $(GENCODE_FLAGS) $(NVCCFLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) -DTHRUST_DEBUG cameratest.o matrix.o superquadric.o point.o camera.o raytrace_cuda.o -o cameratest
 
 clean:
-	rm -f *.o cameratest 
+	rm -f *.o cameratest iotest
