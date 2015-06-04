@@ -50,6 +50,7 @@ void cudaRayTrace(Superquadric * object,
         //WAHT IS GOING ON HERE AEBRGUKAEGBKAERBAG
         // WHY DO WE KEEP GETTING ADDRESS 0X00000000 AT GET_INTERSECTIONS?
         // I DELETED SO MANY THINGS MANANGRUYGBAKRUGBAEGB
+        printf("index = %d.\n", index);
         Ray targetRay = *(start + index);
         Point origin = targetRay.getStart();
         Point dir = targetRay.getDir();
@@ -93,13 +94,16 @@ void cudaCallRayTrace(Superquadric * object,
                       thrust::device_vector<Ray> screen,
                       unsigned int size, Point lookFrom, int blocks,
                       int threadsPerBlock) {
-    
+    std::cout << "Calling it now" << std::endl;
     Ray * start = thrust::raw_pointer_cast(&screen[0]);
     pointLight * lightStart = thrust::raw_pointer_cast(&lights[0]);
     Superquadric * sceneStart = thrust::raw_pointer_cast(&scene[0]);
+    std::cout << "Got the pointers done" << std::endl;
 
     unsigned int lightSize = lights.size();
     unsigned int sceneSize = scene.size();
+    std::cout << "Sizes ready!" << std::endl;
+
     cudaRayTrace<<<blocks, threadsPerBlock>>>
                 (object, sceneStart, lightStart, start, size, lightSize,
                 sceneSize, lookFrom);

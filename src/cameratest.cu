@@ -88,8 +88,8 @@ int main(int argc, char ** argv)
     Point Up       = Point(0, 0, 1);
     float Fd         = 0.05;
     float Fx         = 0.08;
-    float Nx         = 1920;
-    float Ny         = 1080;
+    float Nx         = 100;
+    float Ny         = 100;
     Camera *c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
 
     std::cout << "Raytracing..." << std::endl;
@@ -145,11 +145,7 @@ int main(int argc, char ** argv)
 
     std::cout << "Raytracing..." << std::endl;
     // Allocate space for the point on the GPU
-    Point * d_lookFrom;
     Point cLookFrom = d_c->getLookFrom();
-    cudaMalloc(&d_lookFrom, sizeof(Point));
-    
-    cudaMemcpy(d_lookFrom, &cLookFrom, sizeof(Point), cudaMemcpyHostToDevice);
     
     // TODO: Weird here. kernel has illegal memory access, for whatever reason. 
     // Something probably to do with poor accessing, or maybe trying to get
@@ -163,8 +159,9 @@ int main(int argc, char ** argv)
         cudaMalloc(&d_shape, sizeof(Superquadric));
         cudaMemcpy(d_shape, &scene[i], sizeof(Superquadric), cudaMemcpyHostToDevice);
 	std::cout << "kernel called" << std::endl;
+	std::cout << cLookFrom.X() << " " << cLookFrom.Y() << " " << cLookFrom.Z() << std::endl;
         cudaCallRayTrace(d_shape, d_scene, d_lights, d_screen, d_screen_size, 
-                         *d_lookFrom, blocks, threadsPerBlock);
+                         cLookFrom, blocks, threadsPerBlock);
 
         cudaFree(d_shape);
     }
@@ -173,8 +170,10 @@ int main(int argc, char ** argv)
 
     // The screen is done. Set the camera's ray vector to be equal to the 
     // screen thrust::vector.
-    std::vector<Ray> out_screen;
+    std::vector<Ray> out_screen(camScreen.size());
+    std::cout<< " Copying stuff from device_vector into std::vector" << std::endl;
     thrust::copy(d_screen.begin(), d_screen.end(), out_screen.begin());
+    std::cout << " Finished copying from device_vector into std::vector" << std::endl;
     d_c->setRayScreen(out_screen);
 
 
@@ -187,7 +186,6 @@ int main(int argc, char ** argv)
     // Free all the things.
     delete c;
     delete d_c;
-    cudaFree(d_lookFrom);
 
     // Thrust vectors automatically freed upon returning.
     return 0;
