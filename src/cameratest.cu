@@ -113,14 +113,18 @@ int main(int argc, char ** argv)
     float Nx         = 1920;
     float Ny         = 1080;
     Camera *c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
-
+    
     std::cout << "Raytracing..." << std::endl;
+    float time_elapsed;
+
+    START_TIMER();
     c->runRayTracer(scene, lights);
+    STOP_RECORD_TIMER(time_elapsed);
 
     std::cout << "Printing..." << std::endl;
     c->printImage();
 
-    std::cout << "CPU RayTracing done!" << std::endl;
+    std::cout << "CPU RayTracing done! Time is " << time_elapsed  << std::endl;
 
     // Now, for GPU implementation
     if (argc != 3) {
@@ -180,10 +184,12 @@ int main(int argc, char ** argv)
     Ray * dev_vector_start = thrust::raw_pointer_cast(&d_screen[0]);
     cudaMemcpy(RayScreen, dev_vector_start, sizeof(Ray) * d_screen_size, cudaMemcpyDeviceToDevice);
 
+    START_TIMER();
     for(int i = 0; i < d_scene_size; i++) {
         cudaCallRayTrace(dev_out_scene + i, d_scene, d_lights, RayScreen, d_screen_size, 
                          d_lookFrom, blocks, threadsPerBlock);
     }
+    STOP_RECORD_TIMER(time_elapsed);
 	std::cout << "Done with raytrace..." << std::endl;
 
 
@@ -201,7 +207,7 @@ int main(int argc, char ** argv)
     // Now, print that puppy out.
     d_c->gpuPrintImage();
 
-    std::cout << "GPU RayTracing done!" << std::endl;
+    std::cout << "GPU RayTracing done! Time is " << time_elapsed << std::endl;
 
     // Free all the things.
     delete c;
