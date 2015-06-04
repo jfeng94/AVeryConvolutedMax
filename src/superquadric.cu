@@ -168,8 +168,6 @@ Point Superquadric::isq_g(Point p)
 __host__ __device__
 Point Superquadric::getNormal(Point p)
 {
-    float norm, x, y, z;
-
     Point n = this->isq_g(p);
     Point m = n.norm();
 
@@ -218,7 +216,6 @@ __host__ __device__
 float Superquadric::get_intersection(Ray r)
 {
     float t_old, t_new;
-    bool done;
     float g, g_prime;
 
     //std::ofstream out;
@@ -238,7 +235,6 @@ float Superquadric::get_intersection(Ray r)
     // Propagate the ray to the bounding sphere
     Point intersect = r.propagate(t_old);
     
-    done = false;
     int iterations = 0;
     while(iterations < 100)
     {
@@ -256,7 +252,6 @@ float Superquadric::get_intersection(Ray r)
         if (g < 0.001 && g_prime > -0.001)
         {
             //std::cout << "Case 1\n";
-            done = true;
             //out << intersect;
             return t_old;
         }
@@ -275,7 +270,6 @@ float Superquadric::get_intersection(Ray r)
         else if (g <= 1e-4)
         {
             //std::cout << "Case 4\n";
-            done = true;
             //out << intersect;
             return t_old;
         }

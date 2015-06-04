@@ -2,22 +2,16 @@ CC = /usr/bin/g++
 
 LD_FLAGS = -lrt
 
-CUDA_PATH       ?= /usr/local/cuda-6.5
-CUDA_INC_PATH   ?= $(CUDA_PATH)/include
-CUDA_BIN_PATH   ?= $(CUDA_PATH)/bin
-CUDA_LIB_PATH   ?= $(CUDA_PATH)/lib64
-
-# NVCC
-NVCC            ?= $(CUDA_BIN_PATH)/nvcc
-
 # CUDA code generation flags
 GENCODE_FLAGS   := -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35
 
 # OS-specific build flags
 ifneq ($(DARWIN),)
+      CUDA_PATH ?= /usr/local/cuda-6.5
       LDFLAGS   := -Xlinker -rpath $(CUDA_LIB_PATH) -L$(CUDA_LIB_PATH) -lcudart
       CCFLAGS   := -arch $(OS_ARCH)
 else
+      CUDA_PATH ?= /Developer/NVIDIA/CUDA-7.0
   ifeq ($(OS_SIZE),32)
       LDFLAGS   := -L$(CUDA_LIB_PATH) -lcudart
       CCFLAGS   := -m32
@@ -26,6 +20,13 @@ else
       CCFLAGS   := -m64
   endif
 endif
+
+CUDA_INC_PATH   ?= $(CUDA_PATH)/include
+CUDA_BIN_PATH   ?= $(CUDA_PATH)/bin
+CUDA_LIB_PATH   ?= $(CUDA_PATH)/lib64
+
+# NVCC
+NVCC            ?= $(CUDA_BIN_PATH)/nvcc
 
 # OS-architecture specific flags
 ifeq ($(OS_SIZE),32)
