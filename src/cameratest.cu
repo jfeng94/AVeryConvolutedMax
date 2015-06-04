@@ -10,6 +10,25 @@
 #include "raytrace_cuda.cuh"
 #include <iostream>
 
+// Timing setup Code
+cudaEvent_t start;
+cudaEvent_t stop;
+
+#define START_TIMER() {              \
+    cudaEventCreate(&start);         \
+    cudaEventCreate(&stop);          \
+    cudaEventRecord(start);          \
+}
+
+#define STOP_RECORD_TIMER(name) {    \
+    cudaEventRecord(stop);           \
+    cudaEventSynchronize(stop);      \
+    cudaEventElapsedTime(&name, start, stop); \
+    cudaEventDestroy(start);         \
+    cudaEventDestroy(stop);          \
+}
+
+
 int main(int argc, char ** argv)
 {
 
@@ -60,7 +79,10 @@ int main(int argc, char ** argv)
     n                 = 2;
     Superquadric * s5 = new Superquadric(tra, sca, rot, theta, e, n,
                                          dif, amb, spe, shi, sne, opa);
+    
 
+
+     
     // Preparing for CPU stuff
     std::cout << "Preparing for CPU Raytracing..." << std::endl;
     std::vector<Superquadric> scene;
@@ -88,8 +110,8 @@ int main(int argc, char ** argv)
     Point Up       = Point(0, 0, 1);
     float Fd         = 0.05;
     float Fx         = 0.08;
-    float Nx         = 100;
-    float Ny         = 100;
+    float Nx         = 1920;
+    float Ny         = 1080;
     Camera *c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
 
     std::cout << "Raytracing..." << std::endl;
@@ -130,8 +152,12 @@ int main(int argc, char ** argv)
     unsigned int d_lights_size = d_lights.size();
     unsigned int d_screen_size = d_screen.size();
 
+    // Allocate space for the out_scene.
+    Superquadric * dev_out_scene;
+    cudaMalloc(&dev_out_scene, sizeof(Superquadric) * d_scene_size);
+    
     // Prepare the scene...
-    cudaCallScenePrep(d_scene, d_scene_size, blocks, threadsPerBlock);
+    cudaCallScenePrep(d_scene, dev_out_scene, d_scene_size, blocks, threadsPerBlock);
     
     std::cout << "Scene Done Being Prepared" << std::endl;
     // Running the Ray Tracer...
@@ -148,30 +174,26 @@ int main(int argc, char ** argv)
     Point * d_lookFrom;
     cudaMalloc(&d_lookFrom, sizeof(Point));
     cudaMemcpy(d_lookFrom, LookFrom, sizeof(Point), cudaMemcpyHostToDevice);
-    // TODO: Weird here. kernel has illegal memory access, for whatever reason. 
-    // Something probably to do with poor accessing, or maybe trying to get
-    // a member from something that we cannot get? The sizes of device_vector and 
-    // vector are equal, so I dunno what's up.
 
-    
+    Ray * RayScreen;
+    cudaMalloc(&RayScreen, sizeof(Ray) * d_screen_size);
+    Ray * dev_vector_start = thrust::raw_pointer_cast(&d_screen[0]);
+    cudaMemcpy(RayScreen, dev_vector_start, sizeof(Ray) * d_screen_size, cudaMemcpyDeviceToDevice);
+
     for(int i = 0; i < d_scene_size; i++) {
-        Superquadric * d_shape;
-        cudaMalloc(&d_shape, sizeof(Superquadric));
-        cudaMemcpy(d_shape, &scene[i], sizeof(Superquadric), cudaMemcpyHostToDevice);
-        cudaCallRayTrace(d_shape, d_scene, d_lights, d_screen, d_screen_size, 
+        cudaCallRayTrace(dev_out_scene + i, d_scene, d_lights, RayScreen, d_screen_size, 
                          d_lookFrom, blocks, threadsPerBlock);
-
-        cudaFree(d_shape);
     }
 	std::cout << "Done with raytrace..." << std::endl;
 
 
     // The screen is done. Set the camera's ray vector to be equal to the 
     // screen thrust::vector.
-    std::vector<Ray> out_screen(camScreen.size());
-    std::cout<< " Copying stuff from device_vector into std::vector" << std::endl;
-    thrust::copy(d_screen.begin(), d_screen.end(), out_screen.begin());
-    std::cout << " Finished copying from device_vector into std::vector" << std::endl;
+    Ray * host_Screen;
+    host_Screen = (Ray*) malloc(sizeof(Ray) * d_screen_size);
+    cudaMemcpy(host_Screen, RayScreen, sizeof(Ray) * d_screen_size, cudaMemcpyDeviceToHost);
+
+    std::vector<Ray> out_screen(host_Screen, host_Screen + d_screen_size);
     d_c->setRayScreen(out_screen);
 
 
@@ -184,6 +206,10 @@ int main(int argc, char ** argv)
     // Free all the things.
     delete c;
     delete d_c;
+    free(host_Screen);
+    cudaFree(dev_out_scene);
+    cudaFree(d_lookFrom);
+    cudaFree(RayScreen);
 
     // Thrust vectors automatically freed upon returning.
     return 0;
