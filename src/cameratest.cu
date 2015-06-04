@@ -2,6 +2,8 @@
 #include "point.cuh"
 #include "matrix.cuh"
 #include "camera.h"
+#include "parser.h"
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <thrust/device_vector.h>
@@ -32,65 +34,75 @@ cudaEvent_t stop;
 int main(int argc, char ** argv)
 {
 
-    Point rot, tra, sca, dif, amb, spe;
-    float theta, e, n, shi, sne, opa;
+    // Now, for GPU implementation
+    if (argc != 4) {
+        std::cout << "For GPU usage: ./cameratest scene.txt <numBlocks> <threadsPerBlock>" << std::endl;
+        return 0;
+    }
+    // First, get number of blocks
+    int blocks = atoi(argv[2]);
+
+    // Then, threadsPerBlock
+    int threadsPerBlock = atoi(argv[3]);
+    // Point rot, tra, sca, dif, amb, spe;
+    // float theta, e, n, shi, sne, opa;
     
-    rot               = Point(1, 0, 0);
-    tra               = Point(-1, -5, 1);
-    sca               = Point(1, 1, 1);
-    theta             = 0;
-    e                 = 0.1;
-    n                 = 0.1;
-    Superquadric * s1 = new Superquadric(tra, sca, rot, theta, e, n);
+    // rot               = Point(1, 0, 0);
+    // tra               = Point(-1, -5, 1);
+    // sca               = Point(1, 1, 1);
+    // theta             = 0;
+    // e                 = 0.1;
+    // n                 = 0.1;
+    // Superquadric * s1 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = Point(0, 0, 1);
-    tra               = Point(-3, -5, -1);
-    sca               = Point(1, 1, 1);
-    theta             = 3.1415926 / 4;
-    e                 = 0.1;
-    n                 = 0.1;
-    Superquadric * s2 = new Superquadric(tra, sca, rot, theta, e, n);
+    // rot               = Point(0, 0, 1);
+    // tra               = Point(-3, -5, -1);
+    // sca               = Point(1, 1, 1);
+    // theta             = 3.1415926 / 4;
+    // e                 = 0.1;
+    // n                 = 0.1;
+    // Superquadric * s2 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = Point(0, 0, 1);
-    tra               = Point(-3, -5, 3);
-    sca               = Point(1, 1, 1);
-    theta             = 3.1415926 / 4;
-    e                 = 1;
-    n                 = 1;
-    Superquadric * s3 = new Superquadric(tra, sca, rot, theta, e, n);
+    // rot               = Point(0, 0, 1);
+    // tra               = Point(-3, -5, 3);
+    // sca               = Point(1, 1, 1);
+    // theta             = 3.1415926 / 4;
+    // e                 = 1;
+    // n                 = 1;
+    // Superquadric * s3 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = Point(0, 0, 1);
-    tra               = Point(-1, -5, -3);
-    sca               = Point(1, 1, 1);
-    theta             = 3.1415926 / 4;
-    e                 = 1;
-    n                 = 1;
-    Superquadric * s4 = new Superquadric(tra, sca, rot, theta, e, n);
+    // rot               = Point(0, 0, 1);
+    // tra               = Point(-1, -5, -3);
+    // sca               = Point(1, 1, 1);
+    // theta             = 3.1415926 / 4;
+    // e                 = 1;
+    // n                 = 1;
+    // Superquadric * s4 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = Point(0, 0, 1);
-    tra               = Point(-20, -50, 0);
-    sca               = Point(28, 28, 28);
-    dif               = Point( 10, 140, 125);
-    amb               = Point(130, 130, 130);
-    spe               = Point(150, 150, 150);
-    shi               = 0.01;
-    theta             = 3.1415926 / 8;
-    e                 = 2;
-    n                 = 2;
-    Superquadric * s5 = new Superquadric(tra, sca, rot, theta, e, n,
-                                         dif, amb, spe, shi, sne, opa);
+    // rot               = Point(0, 0, 1);
+    // tra               = Point(-20, -50, 0);
+    // sca               = Point(28, 28, 28);
+    // dif               = Point( 10, 140, 125);
+    // amb               = Point(130, 130, 130);
+    // spe               = Point(150, 150, 150);
+    // shi               = 0.01;
+    // theta             = 3.1415926 / 8;
+    // e                 = 2;
+    // n                 = 2;
+    // Superquadric * s5 = new Superquadric(tra, sca, rot, theta, e, n,
+    //                                      dif, amb, spe, shi, sne, opa);
     
 
 
      
     // Preparing for CPU stuff
     std::cout << "Preparing for CPU Raytracing..." << std::endl;
-    std::vector<Superquadric> scene;
-    scene.push_back(*s5);
-    scene.push_back(*s1);
-    scene.push_back(*s2);
-    scene.push_back(*s3);
-    scene.push_back(*s4);
+    std::vector<Superquadric> scene = parseObjects(argv[1]);
+    // scene.push_back(*s5);
+    // scene.push_back(*s1);
+    // scene.push_back(*s2);
+    // scene.push_back(*s3);
+    // scene.push_back(*s4);
 
 
     pointLight *l1 = new pointLight( 0, 15, 0,   0, 140, 125, 0.005);
@@ -126,18 +138,9 @@ int main(int argc, char ** argv)
 
     std::cout << "CPU RayTracing done! Time is " << time_elapsed  << std::endl;
 
-    // Now, for GPU implementation
-    if (argc != 3) {
-        std::cout << "For GPU usage: ./cameratest <numBlocks> <threadsPerBlock>" << std::endl;
-        return 0;
-    }
 
     std::cout << "Preparing for GPU Raytracing..." << std::endl;
-    // First, get number of blocks
-    int blocks = atoi(argv[1]);
 
-    // Then, threadsPerBlock
-    int threadsPerBlock = atoi(argv[2]);
 
     // Create a new camera with the same things as above.
     Camera * d_c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);

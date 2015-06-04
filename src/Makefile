@@ -45,6 +45,9 @@ raytrace.o: raytrace_cuda.cu
 camera.o: camera.cpp
 	$(CC) -I$(CUDA_INC_PATH) -c camera.cpp 
 
+parser.o: parser.cpp
+	$(CC) -I$(CUDA_INC_PATH) -c parser.cpp 
+
 point.o: point.cu
 	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c -line_info point.cu
 
@@ -57,8 +60,8 @@ matrix.o: matrix.cu
 cameratest.o: cameratest.cu
 	$(NVCC) $(NVCCFLAGS) $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS) -rdc=true -I$(CUDA_INC_PATH) -c -line_info cameratest.cu 
 
-raytrace: cameratest.o matrix.o superquadric.o point.o camera.o raytrace.o
-	$(NVCC) $(GENCODE_FLAGS) $(NVCCFLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) -DTHRUST_DEBUG cameratest.o matrix.o superquadric.o point.o camera.o raytrace_cuda.o -o cameratest
+raytrace: cameratest.o matrix.o superquadric.o point.o parser.o camera.o raytrace.o
+	$(NVCC) $(GENCODE_FLAGS) $(NVCCFLAGS) $(EXTRA_NVCCFLAGS) -I$(CUDA_INC_PATH) -DTHRUST_DEBUG cameratest.o matrix.o superquadric.o point.o parser.o camera.o raytrace_cuda.o -o cameratest
 
 clean:
 	rm -f *.o cameratest iotest
