@@ -53,29 +53,29 @@ void cudaRayTrace(Superquadric * object,
         Ray targetRay = *(start + index);
         Point * origin = targetRay.getStart();
         Point * dir = targetRay.getDir();
+	
 
         // Transform frame of reference so that this object is at origin.
         Point * new_origin = object->applyTransforms(origin);
         Point * new_dir = (object->applyDirTransforms(dir))->norm();
 
+
         // Create new ray to do intersection test.
-        Ray * transR = new Ray();
-        transR->setStart(new_origin);
-        transR->setDir(new_dir);
+        Ray transR;
+        transR.setStart(new_origin);
+        transR.setDir(new_dir);
 
         // Check for intersection
-        float intersects = object->get_intersection(*transR);
- 
+        float intersects = object->get_intersection(transR);
+
         // If there is an intersection
         if (intersects != FLT_MAX && intersects < targetRay.getTime()) {
             // Calculate the intersection point
-            Point * pTran = transR->propagate(intersects);
-            Point * pTrue = object->revertTransforms(pTran);
-             
+            Point * pTran = transR.propagate(intersects);
+            Point * pTrue = object->revertTransforms(pTran); 
             // Get the normal at the intersection point
             Point * n = object->revertDirTransforms((object->getNormal(pTran))->norm());
             // Point *showNorm = *pTran + *(*n / 10);
-	    
             Point * color = object->lighting(pTrue, n, lookFrom, lightStart, sceneStart,
                                             lightSize, sceneSize);
 
@@ -89,9 +89,8 @@ void cudaRayTrace(Superquadric * object,
         delete dir;
         delete new_origin;
         delete new_dir;
-        delete transR;
         index += blockDim.x * gridDim.x;
-    }
+    } 
     // Syncing threads so that they all finish...
     __syncthreads();
 }

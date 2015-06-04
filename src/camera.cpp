@@ -138,7 +138,7 @@ void Camera::runRayTracer(std::vector<Superquadric> scene,
     {
         for (int px = 0; px < this->rayScreen.size(); px++)
         {
-            scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights, scene);
+           scene[i].rayTrace(this->rayScreen[px], &this->LookFrom, lights, scene);
         }
     }
 }

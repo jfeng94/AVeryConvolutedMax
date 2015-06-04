@@ -168,6 +168,7 @@ int main(int argc, char ** argv)
 
         cudaFree(d_shape);
     }
+	std::cout << "Done with raytrace..." << std::endl;
 
 
     // The screen is done. Set the camera's ray vector to be equal to the 
