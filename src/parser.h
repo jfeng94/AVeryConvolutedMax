@@ -1,4 +1,4 @@
 #include <vector>
-#include "superquadric.h"
+#include "superquadric.cuh"
 
 std::vector<Superquadric> parseObjects(const char *filename);

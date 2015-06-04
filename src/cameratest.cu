@@ -117,7 +117,7 @@ int main(int argc, char ** argv)
 
 
 
-    Point * LookFrom = new Point(2, 5, 0);
+    Point * LookFrom = new Point(12, 7, 0);
     Point LookAt   = Point(0, 0, 0);
     Point Up       = Point(0, 0, 1);
     float Fd         = 0.05;
@@ -126,17 +126,17 @@ int main(int argc, char ** argv)
     float Ny         = 1080;
     Camera *c = new Camera(*LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
     
-    std::cout << "Raytracing..." << std::endl;
+    //std::cout << "Raytracing..." << std::endl;
     float time_elapsed;
 
-    START_TIMER();
-    c->runRayTracer(scene, lights);
-    STOP_RECORD_TIMER(time_elapsed);
+    //START_TIMER();
+    //c->runRayTracer(scene, lights);
+    //STOP_RECORD_TIMER(time_elapsed);
 
-    std::cout << "Printing..." << std::endl;
-    c->printImage();
+    //std::cout << "Printing..." << std::endl;
+    //c->printImage();
 
-    std::cout << "CPU RayTracing done! Time is " << time_elapsed  << std::endl;
+    //std::cout << "CPU RayTracing done! Time is " << time_elapsed  << std::endl;
 
 
     std::cout << "Preparing for GPU Raytracing..." << std::endl;

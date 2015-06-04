@@ -103,8 +103,8 @@ std::vector<Superquadric> parseObjects(const char *filename)
         sne = atof(token[22]);
         opa = atof(token[23]);
 
-        Superquadric * s = new Superquadric(tra, sca, rot, theta, E, N,
-                                            dif, amb, spe, shi, sne, opa);
+        Superquadric * s = new Superquadric(*tra, *sca, *rot, theta, E, N,
+                                            *dif, *amb, *spe, shi, sne, opa);
 
         scene.push_back(*s);
     }

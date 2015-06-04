@@ -83,6 +83,7 @@ void cudaRayTrace(Superquadric * object,
                                             lightSize, sceneSize);
 
             (*(start + index)).setColor(color.X(), color.Y(), color.Z());                       
+            (*(start + index)).setTime(intersects);
            }
         index += blockDim.x * gridDim.x;
     } 
