@@ -34,7 +34,7 @@ else
       NVCCFLAGS := -m64
 endif
 
-all: iotest raytrace
+all: raytrace
 
 iotest: matrix.o superquadric.o point.o 
 	$(CC) -I$(CUDA_INC_PATH) $(LDFLAGS) iotest.cpp matrix.o superquadric.o point.o -o iotest

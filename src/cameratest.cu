@@ -13,47 +13,47 @@
 int main(int argc, char ** argv)
 {
 
-    Point *rot, *tra, *sca, *dif, *amb, *spe;
+    Point rot, tra, sca, dif, amb, spe;
     float theta, e, n, shi, sne, opa;
     
-    rot               = new Point(1, 0, 0);
-    tra               = new Point(-1, -5, 1);
-    sca               = new Point(1, 1, 1);
+    rot               = Point(1, 0, 0);
+    tra               = Point(-1, -5, 1);
+    sca               = Point(1, 1, 1);
     theta             = 0;
     e                 = 0.1;
     n                 = 0.1;
     Superquadric * s1 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = new Point(0, 0, 1);
-    tra               = new Point(-3, -5, -1);
-    sca               = new Point(1, 1, 1);
+    rot               = Point(0, 0, 1);
+    tra               = Point(-3, -5, -1);
+    sca               = Point(1, 1, 1);
     theta             = 3.1415926 / 4;
     e                 = 0.1;
     n                 = 0.1;
     Superquadric * s2 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = new Point(0, 0, 1);
-    tra               = new Point(-3, -5, 3);
-    sca               = new Point(1, 1, 1);
+    rot               = Point(0, 0, 1);
+    tra               = Point(-3, -5, 3);
+    sca               = Point(1, 1, 1);
     theta             = 3.1415926 / 4;
     e                 = 1;
     n                 = 1;
     Superquadric * s3 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = new Point(0, 0, 1);
-    tra               = new Point(-1, -5, -3);
-    sca               = new Point(1, 1, 1);
+    rot               = Point(0, 0, 1);
+    tra               = Point(-1, -5, -3);
+    sca               = Point(1, 1, 1);
     theta             = 3.1415926 / 4;
     e                 = 1;
     n                 = 1;
     Superquadric * s4 = new Superquadric(tra, sca, rot, theta, e, n);
 
-    rot               = new Point(0, 0, 1);
-    tra               = new Point(-20, -50, 0);
-    sca               = new Point(28, 28, 28);
-    dif               = new Point( 10, 140, 125);
-    amb               = new Point(130, 130, 130);
-    spe               = new Point(150, 150, 150);
+    rot               = Point(0, 0, 1);
+    tra               = Point(-20, -50, 0);
+    sca               = Point(28, 28, 28);
+    dif               = Point( 10, 140, 125);
+    amb               = Point(130, 130, 130);
+    spe               = Point(150, 150, 150);
     shi               = 0.01;
     theta             = 3.1415926 / 8;
     e                 = 2;
@@ -83,13 +83,13 @@ int main(int argc, char ** argv)
 
 
 
-    Point * LookFrom = new Point(2, 5, 0);
-    Point * LookAt   = new Point(0, 0, 0);
-    Point * Up       = new Point(0, 0, 1);
+    Point LookFrom = Point(2, 5, 0);
+    Point LookAt   = Point(0, 0, 0);
+    Point Up       = Point(0, 0, 1);
     float Fd         = 0.05;
     float Fx         = 0.08;
-    float Nx         = 100;
-    float Ny         = 100;
+    float Nx         = 1920;
+    float Ny         = 1080;
     Camera *c = new Camera(LookFrom, LookAt, Up, Fd, Fx, Nx, Ny);
 
     std::cout << "Raytracing..." << std::endl;
@@ -137,9 +137,9 @@ int main(int argc, char ** argv)
     // Running the Ray Tracer...
 
     // Adding an eye light
-    pointLight *d_l = new pointLight(LookFrom->X(),
-                                     LookFrom->Y(),
-                                     LookFrom->Z(),
+    pointLight *d_l = new pointLight(LookFrom.X(),
+                                     LookFrom.Y(),
+                                     LookFrom.Z(),
                                      255, 255, 255, 1);
     d_lights.push_back(*d_l);
 
@@ -164,7 +164,7 @@ int main(int argc, char ** argv)
         cudaMemcpy(d_shape, &scene[i], sizeof(Superquadric), cudaMemcpyHostToDevice);
 	std::cout << "kernel called" << std::endl;
         cudaCallRayTrace(d_shape, d_scene, d_lights, d_screen, d_screen_size, 
-                         d_lookFrom, blocks, threadsPerBlock);
+                         *d_lookFrom, blocks, threadsPerBlock);
 
         cudaFree(d_shape);
     }
@@ -185,8 +185,8 @@ int main(int argc, char ** argv)
     std::cout << "GPU RayTracing done!" << std::endl;
 
     // Free all the things.
-    free(c);
-    free(d_c);
+    delete c;
+    delete d_c;
     cudaFree(d_lookFrom);
 
     // Thrust vectors automatically freed upon returning.

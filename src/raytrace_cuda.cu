@@ -43,7 +43,7 @@ void cudaRayTrace(Superquadric * object,
                   Superquadric * sceneStart, 
                   pointLight * lightStart,
                   Ray * start,
-                  unsigned int size, unsigned int lightSize, unsigned int sceneSize, Point * lookFrom) {
+                  unsigned int size, unsigned int lightSize, unsigned int sceneSize, Point lookFrom) {
     // Thread resiliency measuresi.
     unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
     while (index < size) {
